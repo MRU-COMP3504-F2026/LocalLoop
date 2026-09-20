@@ -6,7 +6,7 @@
 
 **Project Members:**
 - Sayuj Mali
--  
+- Josh Nacionales 
 - 
 - 
 - 
