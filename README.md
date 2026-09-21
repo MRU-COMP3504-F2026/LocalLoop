@@ -8,5 +8,5 @@
 - Sayuj Mali
 - Josh Nacionales 
 - Steven On
-- 
+- Seila Kennedy
 - 
