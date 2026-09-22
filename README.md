@@ -9,4 +9,4 @@
 - Josh Nacionales 
 - Steven On
 - Seila Kennedy
-- 
+- Daniel Anzola
