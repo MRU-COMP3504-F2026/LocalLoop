@@ -1,14 +1,18 @@
-import { supabase } from "@/lib/utils";
+import Link from "next/link";
 
-export default async function Home() {
-  const {data: users, error } = await supabase.from("User").select();
+export default function Home() {
 
-  if(error){
-    return <p className="text-red-500">Failed to load users:{error.message}</p>;
-  }
   return (
     <main className="flex min-h-screen items-center justify-center">
       <h1 className="text-3xl font-semibold">Hello, LocalLoop</h1>
+
+    <nav>
+      <li><Link href="/login">Log In</Link></li>
+      <li><Link href="/explore">Explore</Link></li>
+      <li><Link href="/product">Products</Link></li>
+    </nav>
+
     </main>
+
   );
 }
