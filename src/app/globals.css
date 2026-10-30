@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+@theme {
+    --color-loop-green: #697365;
+    --color-loop-green-dark: #243C2E;
+    --color-loop-cream: #FBF8F0;
+    --color-loop-sage: #E5EBDD;
+    --color-loop-border: #D9D6CC;
+    --color-loop-red: #F4E7DE;
+    --color-loop-red-text: #B86B56;
+}
