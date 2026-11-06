@@ -8,7 +8,7 @@ type BusinessData = {
     password: string;
     confirmPass: string;
     location: string;
-    category: string;
+    category: string[];
     description: string;
     onlineStore: string;
     openingHours: string;
@@ -28,7 +28,7 @@ export const BusinessProvider = (props: { children: React.ReactNode }) => {
         password: "",
         confirmPass: "",
         location: "",
-        category: "",
+        category: [],
         description: "",
         onlineStore: "",
         openingHours: "",

@@ -1,5 +1,5 @@
 "use client";
-
+import CategorySelect from "./categorySelect";
 import { useBusiness } from "@/context/businessContext";
 import { useRouter } from "next/navigation";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../ui/textarea";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 const RegisterForm = () => {
@@ -132,8 +132,16 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="password">Categories</FieldLabel>
-                <Input id="password" type="password" required />
+                <FieldLabel>Categories (Select up to 3)</FieldLabel>
+                <CategorySelect
+                    selectedCategories={businessData.category}
+                    onChange={(categories) =>
+                    setBusinessData({
+                    ...businessData,
+                    category: categories,
+                  })
+                }
+              />
               </Field>
               <Field>
                 <FieldLabel htmlFor="onlineStore">Existing Online Store</FieldLabel>

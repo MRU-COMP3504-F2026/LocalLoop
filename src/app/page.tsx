@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BusinessProvider } from "@/context/businessContext";
-import { RegisterForm } from "@/components/registerForm";
+import { RegisterForm } from "@/components/create/registerForm";
 
 export default function Home() {
 
@@ -12,11 +12,8 @@ export default function Home() {
       <li><Link href="/login">Log In</Link></li>
       <li><Link href="/explore">Explore</Link></li>
       <li><Link href="/product">Products</Link></li>
+      <li><Link href="/create">Create a new Business Account</Link></li>
     </nav>
-    <BusinessProvider>
-      <RegisterForm></RegisterForm>
-    </BusinessProvider>
-    
 
     </main>
 
