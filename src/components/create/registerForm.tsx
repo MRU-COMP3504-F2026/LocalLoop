@@ -23,7 +23,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
     console.log("Business Information:", businessData);
 
-    router.push("/onboarding");
+    router.push("/display");
 };
 
   return (
