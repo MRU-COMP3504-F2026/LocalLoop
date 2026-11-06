@@ -12,6 +12,7 @@ type BusinessData = {
     description: string;
     onlineStore: string;
     openingHours: string;
+    images: File[];
 };
 
 type BusinessContextType = {
@@ -32,6 +33,7 @@ export const BusinessProvider = (props: { children: React.ReactNode }) => {
         description: "",
         onlineStore: "",
         openingHours: "",
+        images: [],
     });
 
     return (

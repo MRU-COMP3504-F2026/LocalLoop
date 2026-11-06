@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { BusinessProvider } from "@/context/businessContext";
-import { RegisterForm } from "@/components/create/registerForm";
 
 export default function Home() {
 

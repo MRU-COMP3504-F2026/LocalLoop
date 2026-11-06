@@ -1,4 +1,5 @@
 "use client";
+import ImageUpload from "./imageUpload";
 import CategorySelect from "./categorySelect";
 import { useBusiness } from "@/context/businessContext";
 import { useRouter } from "next/navigation";
@@ -142,6 +143,19 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                   })
                 }
               />
+              </Field>
+              <Field>
+                <FieldLabel>Business Photos</FieldLabel>
+
+                <ImageUpload
+                  images={businessData.images}
+                  onChange={(images) =>
+                  setBusinessData({
+                  ...businessData,
+                  images: images,
+                  })
+                }
+                />
               </Field>
               <Field>
                 <FieldLabel htmlFor="onlineStore">Existing Online Store</FieldLabel>
