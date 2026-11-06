@@ -1,6 +1,7 @@
 "use client";
 import ImageUpload from "./imageUpload";
 import CategorySelect from "./categorySelect";
+import OpeningHours from "./openingHours";
 import { useBusiness } from "@/context/businessContext";
 import { useRouter } from "next/navigation";
 import {
@@ -173,19 +174,17 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="openingHours">Opening Hours</FieldLabel>
-                <Input
-                  id="openingHours"
-                  value={businessData.openingHours}
-                  onChange={(e) =>
+                <FieldLabel>Business Hours</FieldLabel>
+                <OpeningHours
+                  hours={businessData.openingHours}
+                  onChange={(hours) =>
                   setBusinessData({
-                      ...businessData,
-                      openingHours: e.target.value,
-                    })
-                  }
-                  required
-                />
-              </Field>
+                  ...businessData,
+                  openingHours: hours,
+                })
+                }
+              />
+            </Field>
 
             </FieldGroup>
           </form>

@@ -1,6 +1,20 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
+type DaySchedule = {
+    open: string;
+    close: string;
+    closed: boolean;
+};
+export type BusinessHours = {
+    monday: DaySchedule;
+    tuesday: DaySchedule;
+    wednesday: DaySchedule;
+    thursday: DaySchedule;
+    friday: DaySchedule;
+    saturday: DaySchedule;
+    sunday: DaySchedule;
+};
 
 type BusinessData = {
     businessName: string;
@@ -11,7 +25,7 @@ type BusinessData = {
     category: string[];
     description: string;
     onlineStore: string;
-    openingHours: string;
+    openingHours: BusinessHours;
     images: File[];
 };
 
@@ -32,7 +46,15 @@ export const BusinessProvider = (props: { children: React.ReactNode }) => {
         category: [],
         description: "",
         onlineStore: "",
-        openingHours: "",
+        openingHours: {
+            monday: { open: "09:00", close: "17:00", closed: false },
+            tuesday: { open: "09:00", close: "17:00", closed: false },
+            wednesday: { open: "09:00", close: "17:00", closed: false },
+            thursday: { open: "09:00", close: "17:00", closed: false },
+            friday: { open: "09:00", close: "17:00", closed: false },
+            saturday: { open: "09:00", close: "17:00", closed: true },
+            sunday: { open: "09:00", close: "17:00", closed: true },
+        },
         images: [],
     });
 

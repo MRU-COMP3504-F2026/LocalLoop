@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useBusiness } from "@/context/businessContext";
@@ -6,6 +5,18 @@ import { useBusiness } from "@/context/businessContext";
 const DisplayPage = () => {
 
     const { businessData } = useBusiness();
+    const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(":");
+    const date = new Date();
+
+    date.setHours(Number(hours), Number(minutes));
+
+    return date.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+    });
+};
 
     return (
         <div className="p-10">
@@ -45,10 +56,21 @@ const DisplayPage = () => {
                     {businessData.onlineStore}
                 </p>
 
-                <p>
-                    <strong>Opening Hours:</strong>{" "}
-                    {businessData.openingHours}
-                </p>
+               <div>
+                    <strong>Opening Hours:</strong>
+                    <div className="mt-2 space-y-1">
+                        {Object.entries(businessData.openingHours).map(([day, schedule]) => (
+                            <p key={day}>
+                                <strong>
+                                    {day.charAt(0).toUpperCase() + day.slice(1)}:
+                                </strong>{" "}
+                                {schedule.closed
+                                ? "Closed"
+                                : `${formatTime(schedule.open)} - ${formatTime(schedule.close)}`}
+                            </p>
+                        ))}
+                    </div>
+                </div>
 
             </div>
         </div>
