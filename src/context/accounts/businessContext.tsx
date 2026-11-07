@@ -1,11 +1,14 @@
+
 "use client";
 
 import { createContext, useContext, useState } from "react";
+
 type DaySchedule = {
     open: string;
     close: string;
     closed: boolean;
 };
+
 export type BusinessHours = {
     monday: DaySchedule;
     tuesday: DaySchedule;
@@ -17,10 +20,6 @@ export type BusinessHours = {
 };
 
 type BusinessData = {
-    businessName: string;
-    email: string;
-    password: string;
-    confirmPass: string;
     location: string;
     category: string[];
     description: string;
@@ -31,21 +30,18 @@ type BusinessData = {
 
 type BusinessContextType = {
     businessData: BusinessData;
-    setBusinessData: (data: BusinessData) => void;
+    setBusinessData: React.Dispatch<React.SetStateAction<BusinessData>>;
 };
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
 
 export const BusinessProvider = (props: { children: React.ReactNode }) => {
     const [businessData, setBusinessData] = useState<BusinessData>({
-        businessName: "",
-        email: "",
-        password: "",
-        confirmPass: "",
         location: "",
         category: [],
         description: "",
         onlineStore: "",
+        images: [],
         openingHours: {
             monday: { open: "09:00", close: "17:00", closed: false },
             tuesday: { open: "09:00", close: "17:00", closed: false },
@@ -55,7 +51,6 @@ export const BusinessProvider = (props: { children: React.ReactNode }) => {
             saturday: { open: "09:00", close: "17:00", closed: true },
             sunday: { open: "09:00", close: "17:00", closed: true },
         },
-        images: [],
     });
 
     return (
@@ -67,8 +62,9 @@ export const BusinessProvider = (props: { children: React.ReactNode }) => {
 
 export const useBusiness = () => {
     const context = useContext(BusinessContext);
-     if (!context) {
-        throw new Error("useBusiness hook must be inside a provider");
+
+    if (!context) {
+        throw new Error("useBusiness must be used inside BusinessProvider");
     }
 
     return context;

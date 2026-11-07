@@ -1,22 +1,26 @@
+
 "use client";
 
-import { useBusiness } from "@/context/businessContext";
+import { useBusiness } from "@/context/accounts/businessContext";
+import { useAccount } from "@/context/accounts/accountContext";
 
 const DisplayPage = () => {
 
     const { businessData } = useBusiness();
+    const { accountData } = useAccount();
+
     const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(":");
-    const date = new Date();
+        const [hours, minutes] = time.split(":");
+        const date = new Date();
 
-    date.setHours(Number(hours), Number(minutes));
+        date.setHours(Number(hours), Number(minutes));
 
-    return date.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-    });
-};
+        return date.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        });
+    };
 
     return (
         <div className="p-10">
@@ -28,12 +32,12 @@ const DisplayPage = () => {
 
                 <p>
                     <strong>Business Name:</strong>{" "}
-                    {businessData.businessName}
+                    {accountData.username}
                 </p>
 
                 <p>
                     <strong>Email:</strong>{" "}
-                    {businessData.email}
+                    {accountData.email}
                 </p>
 
                 <p>
@@ -56,8 +60,9 @@ const DisplayPage = () => {
                     {businessData.onlineStore}
                 </p>
 
-               <div>
+                <div>
                     <strong>Opening Hours:</strong>
+
                     <div className="mt-2 space-y-1">
                         {Object.entries(businessData.openingHours).map(([day, schedule]) => (
                             <p key={day}>
@@ -65,8 +70,8 @@ const DisplayPage = () => {
                                     {day.charAt(0).toUpperCase() + day.slice(1)}:
                                 </strong>{" "}
                                 {schedule.closed
-                                ? "Closed"
-                                : `${formatTime(schedule.open)} - ${formatTime(schedule.close)}`}
+                                    ? "Closed"
+                                    : `${formatTime(schedule.open)} - ${formatTime(schedule.close)}`}
                             </p>
                         ))}
                     </div>

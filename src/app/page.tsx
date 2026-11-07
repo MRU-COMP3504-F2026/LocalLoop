@@ -10,7 +10,7 @@ export default function Home() {
       <li><Link href="/login">Log In</Link></li>
       <li><Link href="/explore">Explore</Link></li>
       <li><Link href="/product">Products</Link></li>
-      <li><Link href="/create">Create a new Business Account</Link></li>
+      <li><Link href="/register">Create a new Account</Link></li>
     </nav>
 
     </main>
