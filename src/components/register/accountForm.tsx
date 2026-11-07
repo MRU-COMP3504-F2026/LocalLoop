@@ -1,13 +1,13 @@
 "use client";
 
-import { useAccount } from "@/context/accounts/accountContext";
+import { useAccount, type AccountType } from "@/context/accounts/accountContext";
+
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 interface AccountFormProps {
-    accountType: "business" | "client";
+    accountType: AccountType;
 }
-
 const AccountForm = (props: AccountFormProps) => {
     const { accountData, setAccountData } = useAccount();
 
@@ -23,12 +23,11 @@ const AccountForm = (props: AccountFormProps) => {
                     id="username"
                     value={accountData.username}
                     onChange={(e) =>
-                        setAccountData({
-                            ...accountData,
-                            username: e.target.value,
-                        })
+                        setAccountData((prev) => ({
+                        ...prev,
+                        username: e.target.value,
+                        }))
                     }
-                    required
                 />
             </Field>
 

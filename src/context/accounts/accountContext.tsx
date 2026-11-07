@@ -1,8 +1,6 @@
-
 "use client";
-
 import { createContext, useContext, useState } from "react";
-
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 export type AccountType = "business" | "client";
 
 type AccountData = {
@@ -15,19 +13,24 @@ type AccountData = {
 
 type AccountContextType = {
     accountData: AccountData;
-    setAccountData: React.Dispatch<React.SetStateAction<AccountData>>;
+    setAccountData: Dispatch<SetStateAction<AccountData>>;
+};
+
+type AccountProviderProps = {
+    children: ReactNode;
+};
+const initialAccountData: AccountData = {
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    accountType: "business",
 };
 
 const AccountContext = createContext<AccountContextType | undefined>(undefined);
 
-export const AccountProvider = (props: { children: React.ReactNode }) => {
-    const [accountData, setAccountData] = useState<AccountData>({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        accountType: "business",
-    });
+export const AccountProvider = (props: AccountProviderProps) => {
+    const [accountData, setAccountData] = useState<AccountData>(initialAccountData);
 
     return (
         <AccountContext.Provider value={{ accountData, setAccountData }}>

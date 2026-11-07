@@ -1,7 +1,6 @@
-
 "use client";
-
 import { createContext, useContext, useState } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 
 type DaySchedule = {
     open: string;
@@ -27,31 +26,35 @@ type BusinessData = {
     openingHours: BusinessHours;
     images: File[];
 };
-
+const initialBusinessData: BusinessData = {
+    location: "",
+    category: [],
+    description: "",
+    onlineStore: "",
+    images: [],
+    openingHours: {
+    monday: { open: "09:00", close: "17:00", closed: false },
+    tuesday: { open: "09:00", close: "17:00", closed: false },
+    wednesday: { open: "09:00", close: "17:00", closed: false },
+    thursday: { open: "09:00", close: "17:00", closed: false },
+    friday: { open: "09:00", close: "17:00", closed: false },
+    saturday: { open: "09:00", close: "17:00", closed: true },
+    sunday: { open: "09:00", close: "17:00", closed: true },
+    },
+};
 type BusinessContextType = {
     businessData: BusinessData;
-    setBusinessData: React.Dispatch<React.SetStateAction<BusinessData>>;
+    setBusinessData: Dispatch<SetStateAction<BusinessData>>;
 };
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
-
-export const BusinessProvider = (props: { children: React.ReactNode }) => {
-    const [businessData, setBusinessData] = useState<BusinessData>({
-        location: "",
-        category: [],
-        description: "",
-        onlineStore: "",
-        images: [],
-        openingHours: {
-            monday: { open: "09:00", close: "17:00", closed: false },
-            tuesday: { open: "09:00", close: "17:00", closed: false },
-            wednesday: { open: "09:00", close: "17:00", closed: false },
-            thursday: { open: "09:00", close: "17:00", closed: false },
-            friday: { open: "09:00", close: "17:00", closed: false },
-            saturday: { open: "09:00", close: "17:00", closed: true },
-            sunday: { open: "09:00", close: "17:00", closed: true },
-        },
-    });
+type BusinessProviderProps = {
+    children: ReactNode;
+};
+export const BusinessProvider = (props: BusinessProviderProps) => {
+    const [businessData, setBusinessData] = useState<BusinessData>(
+        initialBusinessData
+    );
 
     return (
         <BusinessContext.Provider value={{ businessData, setBusinessData }}>

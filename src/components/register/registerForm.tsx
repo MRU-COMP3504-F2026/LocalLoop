@@ -1,5 +1,6 @@
-
 "use client";
+
+import type { SubmitEventHandler } from "react";
 
 import AccountForm from "./accountForm";
 import BusinessDetails from "./business/details";
@@ -22,10 +23,8 @@ const RegisterForm = () => {
     const { accountData } = useAccount();
     const router = useRouter();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit: SubmitEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
-
-        console.log("Account Information:", accountData);
 
         router.push("/display");
     };
