@@ -16,9 +16,7 @@ export default function ProductRegistrationForm() {
         productImageUrl: productData.productImageUrl
     });
 
-    const handleChange = (
-        e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-    ) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
 
         setFormData({
@@ -36,11 +34,9 @@ export default function ProductRegistrationForm() {
         console.log("Product registered:", formData);
     };
 
-    const inputStyle =
-        "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    const inputStyle = "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
-    const labelStyle =
-        "mb-2 block text-sm font-medium text-gray-700";
+    const labelStyle = "mb-2 block text-sm font-medium text-gray-700";
 
     return (
         <div className="min-h-screen bg-gray-50 px-4 py-10 sm:px-6">
@@ -55,39 +51,19 @@ export default function ProductRegistrationForm() {
                     </p>
                 </div>
 
-                <form
-                    onSubmit={handleSubmit}
-                    className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8"
-                >
-
-                    {/* Product Name */}
+                <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
                     <div>
                         <label className={labelStyle}>
                             Product Name
                         </label>
-                        <input
-                            type="text"
-                            name="productName"
-                            placeholder="Enter product name"
-                            value={formData.productName}
-                            onChange={handleChange}
-                            className={inputStyle}
-                            required
-                        />
+                        <input type="text" name="productName" placeholder="Enter product name" value={formData.productName} onChange={handleChange} className={inputStyle} required/>
                     </div>
 
-                    {/* Product Type */}
                     <div>
                         <label className={labelStyle}>
                             Product Type
                         </label>
-                        <select
-                            name="productType"
-                            value={formData.productType}
-                            onChange={handleChange}
-                            className={inputStyle}
-                            required
-                        >
+                        <select name="productType" value={formData.productType} onChange={handleChange} className={inputStyle} required>
                             <option value="">Select Product Type</option>
                             <option value=""></option>
                             <option value=""></option>
@@ -97,23 +73,13 @@ export default function ProductRegistrationForm() {
                         </select>
                     </div>
 
-                    {/* Description */}
                     <div>
                         <label className={labelStyle}>
                             Product Description
                         </label>
-                        <textarea
-                            name="productDescription"
-                            placeholder="Describe your product..."
-                            value={formData.productDescription}
-                            onChange={handleChange}
-                            rows={4}
-                            className={inputStyle + " resize-none"}
-                            required
-                        />
+                        <textarea name="productDescription" placeholder="Describe your product..." value={formData.productDescription} onChange={handleChange} rows={4} className={inputStyle + " resize-none"} required />
                     </div>
 
-                    {/* Price and Quantity */}
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                         <div>

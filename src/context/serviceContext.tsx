@@ -2,7 +2,7 @@
 
 import {createContext, useContext,useState} from "react";
 
-type serviceData = {
+type ServiceData = {
     serviceName: string;
     serviceType:string;
     serviceDescription: string;
@@ -11,14 +11,15 @@ type serviceData = {
     serviceImageUrl: string;
 };
 
-type serviceContextType = {
-    serviceData: serviceData;
-    setServiceData: (data: serviceData) => void;
+type ServiceContextType = {
+    serviceData: ServiceData;
+    setServiceData: React.Dispatch<React.SetStateAction<ServiceData>>;
 };
-const serviceContext = createContext<serviceContextType | undefined>(undefined);
 
-export const serviceProvider = (props:{children: React.ReactNode})=>{
-    const [serviceData, setServiceData] = useState<serviceData>({
+const serviceContext = createContext<ServiceContextType | undefined>(undefined);
+
+export const ServiceProvider = (props:{children: React.ReactNode})=>{
+    const [serviceData, setServiceData] = useState<ServiceData>({
         serviceName: "",
         serviceType:"",
         serviceDescription: "",
