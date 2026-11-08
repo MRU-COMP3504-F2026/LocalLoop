@@ -6,22 +6,16 @@ import StatusPill from "./StatusPill";
  
 export default function PublishingScreen() {
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl bg-loop-cream pb-10 text-loop-green-dark md:px-8 lg:px-10">
+    <main className="mx-auto flex min-h-screen w-full max-w-[430px] flex-col bg-loop-cream pb-10 text-loop-green-dark">
       <PublishingHeader />
-      <div className="md:grid md:grid-cols-2 md:items-start md:gap-6">
-        <div>
-          <PublishingHero />
-          <BusinessSummaryCard
-            name="Moss & Clay Studio"
-            location="Kensington, Calgary"
-            imageSrc="/images/moss-clay-thumb.png"
-          />
-        </div>
-        <div className="md:pt-8">
-          <PublishStepsList />
-          <StatusPill />
-        </div>
-      </div>
+      <PublishingHero />
+      <BusinessSummaryCard
+        name="Moss & Clay Studio"
+        location="Kensington, Calgary"
+        imageSrc="/images/profile-header.jpg"
+      />
+      <PublishStepsList />
+      <StatusPill />
     </main>
   );
 }
