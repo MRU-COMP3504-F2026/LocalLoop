@@ -1,9 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://example.supabase.co";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "public-anon-key";
 
-export const supabase = createClient(supabaseURL,supabaseAnonKey);
+export const supabase = createClient(supabaseURL, supabaseAnonKey);
 
 // Code for connecting to supabase
 //import { supabase } from "@/lib/utils";

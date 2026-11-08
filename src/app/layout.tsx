@@ -1,15 +1,30 @@
 import type { Metadata } from "next";
+import { Fraunces, Nunito_Sans } from "next/font/google";
 import "./globals.css";
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+});
+
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+});
 
 export const metadata: Metadata = {
   title: "LocalLoop",
-  description: "LocalLoop",
+  description: "Find local. Love local.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body className="min-h-screen antialiased">{children}</body>
+      <body
+        className={`${fraunces.variable} ${nunitoSans.variable} min-h-screen bg-loop-cream font-sans text-loop-green-dark antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }

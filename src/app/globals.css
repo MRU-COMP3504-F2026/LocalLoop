@@ -8,4 +8,6 @@
     --color-loop-border: #D9D6CC;
     --color-loop-red: #F4E7DE;
     --color-loop-red-text: #B86B56;
+    --font-sans: var(--font-nunito), ui-sans-serif, system-ui, sans-serif;
+    --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
 }
