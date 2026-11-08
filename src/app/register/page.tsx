@@ -1,47 +1,44 @@
-
 import Link from "next/link";
-import {
-    Card,
-    CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import PageFrame from "@/components/pageFrame";
 
-const RegisterPage = () => {
-    return (
-        <div className="flex justify-center items-center min-h-screen p-4">
-            <div className="w-full max-w-2xl space-y-6">
-                <div className="text-center space-y-2">
-                    <h1 className="text-3xl font-bold">
-                        Create Customer Account
-                    </h1>
-                </div>
+const choices = [
+  {
+    href: "/register/business",
+    label: "Create Business Account",
+    detail: "Put your shop on the map",
+  },
+  {
+    href: "/register/customer",
+    label: "Create Shopper Account",
+    detail: "Follow businesses nearby",
+  },
+];
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Card>
-
-                        <CardContent>
-                            <Link href="/register/business">
-                                <Button className="w-full">
-                                    Create Business Account
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-
-                        <CardContent>
-                            <Link href="/register/customer">
-                                <Button className="w-full">
-                                    Create Shopper Account
-                                </Button>
-                            </Link>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-export default RegisterPage;
+export default function RegisterPage() {
+  return (
+    <PageFrame
+      eyebrow="join in"
+      title="create an account"
+      description="Choose the kind of account you need."
+    >
+      <ul className="grid gap-4 md:grid-cols-2">
+        {choices.map((choice) => (
+          <li key={choice.href}>
+            <Link
+              href={choice.href}
+              className="flex h-full flex-col justify-between rounded-[28px] bg-white p-5 hover:bg-loop-sage"
+            >
+              <span>
+                <span className="block font-serif text-2xl">{choice.label}</span>
+                <span className="mt-2 block text-sm text-loop-green">{choice.detail}</span>
+              </span>
+              <span className="mt-6 inline-flex w-fit rounded-full bg-loop-green-dark px-5 py-3 text-sm font-semibold text-white">
+                Continue
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </PageFrame>
+  );
+}

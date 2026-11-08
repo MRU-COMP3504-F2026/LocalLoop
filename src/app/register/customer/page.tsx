@@ -1,9 +1,11 @@
-const ClientRegisterPage = () => {
-    return (
-        <div>
-            <h1>Client Registration</h1>
-        </div>
-    );
-};
+import PageFrame from "@/components/pageFrame";
 
-export default ClientRegisterPage;
+export default function ClientRegisterPage() {
+  return (
+    <PageFrame
+      eyebrow="join in"
+      title="shopper account"
+      description="Create an account to follow local businesses."
+    />
+  );
+}

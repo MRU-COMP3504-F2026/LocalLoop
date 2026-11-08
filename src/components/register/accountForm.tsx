@@ -21,6 +21,7 @@ const AccountForm = (props: AccountFormProps) => {
                 <FieldLabel htmlFor="username">{usernameLabel}*</FieldLabel>
                 <Input
                     id="username"
+                    className="h-11 rounded-2xl bg-loop-cream px-4"
                     value={accountData.username}
                     onChange={(e) =>
                         setAccountData((prev) => ({
@@ -35,6 +36,7 @@ const AccountForm = (props: AccountFormProps) => {
                 <FieldLabel htmlFor="email">Email*</FieldLabel>
                 <Input
                     id="email"
+                    className="h-11 rounded-2xl bg-loop-cream px-4"
                     type="email"
                     value={accountData.email}
                     onChange={(e) =>
@@ -51,6 +53,7 @@ const AccountForm = (props: AccountFormProps) => {
                 <FieldLabel htmlFor="password">Password*</FieldLabel>
                 <Input
                     id="password"
+                    className="h-11 rounded-2xl bg-loop-cream px-4"
                     type="password"
                     value={accountData.password}
                     onChange={(e) =>
@@ -69,6 +72,7 @@ const AccountForm = (props: AccountFormProps) => {
                 </FieldLabel>
                 <Input
                     id="confirmPassword"
+                    className="h-11 rounded-2xl bg-loop-cream px-4"
                     type="password"
                     value={accountData.confirmPassword}
                     onChange={(e) =>

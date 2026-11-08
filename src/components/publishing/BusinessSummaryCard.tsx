@@ -21,8 +21,8 @@ export default function BusinessSummaryCard({
         className="h-[52px] w-[52px] rounded-xl object-cover"
       />
       <div>
-        <p className="text-base font-semibold text-[#1f2a24]">{name}</p>
-        <p className="text-xs text-[#6b756e]">{location}</p>
+        <p className="font-serif text-2xl text-loop-green-dark">{name}</p>
+        <p className="text-xs text-loop-green">{location}</p>
       </div>
     </div>
   );

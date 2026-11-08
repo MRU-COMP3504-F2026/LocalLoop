@@ -2,7 +2,7 @@ import PublishStepItem from "./PublishStepItem";
  
 export default function PublishStepsList() {
   return (
-    <section className="mx-5 mt-6 rounded-2xl bg-[#e8eede] p-4">
+    <section className="mx-5 mt-6 rounded-[28px] bg-loop-sage p-5">
       <ul className="flex flex-col gap-5">
         <PublishStepItem
           iconSrc="/icons/spinner.png"

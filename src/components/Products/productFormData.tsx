@@ -34,24 +34,20 @@ export default function ProductRegistrationForm() {
         console.log("Product registered:", formData);
     };
 
-    const inputStyle = "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    const inputStyle = "w-full rounded-2xl border border-loop-border bg-white px-4 py-2.5 text-loop-green-dark outline-none transition focus:border-loop-green focus:ring-2 focus:ring-loop-sage";
 
-    const labelStyle = "mb-2 block text-sm font-medium text-gray-700";
+    const labelStyle = "mb-2 block text-sm font-semibold text-loop-green-dark";
 
     return (
-        <div className="min-h-screen bg-gray-50 px-4 py-10 sm:px-6">
-            <div className="mx-auto max-w-2xl">
+        <div className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
+            <header>
+                <p className="text-sm uppercase tracking-[0.2em] text-loop-green">your shop</p>
+                <h1 className="mt-3 font-serif text-[2.4rem] leading-tight md:text-5xl lg:text-6xl">register a product</h1>
+                <p className="mt-3 max-w-md text-loop-green md:text-lg">Enter your product information below.</p>
+            </header>
 
-                <div className="mb-8 text-center">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-                        Register a Product
-                    </h1>
-                    <p className="mt-2 text-sm text-gray-500">
-                        Enter your product information below.
-                    </p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+            <form onSubmit={handleSubmit} className="mt-8 grid gap-4 md:grid-cols-2">
+                <div className="space-y-6 rounded-[28px] bg-white p-5 md:p-7">
                     <div>
                         <label className={labelStyle}>
                             Product Name
@@ -79,7 +75,9 @@ export default function ProductRegistrationForm() {
                         </label>
                         <textarea name="productDescription" placeholder="Describe your product..." value={formData.productDescription} onChange={handleChange} rows={4} className={inputStyle + " resize-none"} required />
                     </div>
+                </div>
 
+                <div className="flex flex-col gap-6 rounded-[28px] bg-white p-5 md:p-7">
                     <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                         <div>
@@ -131,23 +129,21 @@ export default function ProductRegistrationForm() {
                             onChange={handleChange}
                             className={inputStyle}
                         />
-                        <p className="mt-1.5 text-xs text-gray-500">
+                        <p className="mt-1.5 text-xs text-loop-green">
                             Enter a URL for your product image.
                         </p>
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="border-t border-gray-100 pt-5">
+                    <div className="mt-auto border-t border-loop-border pt-5">
                         <button
                             type="submit"
-                            className="w-full rounded-lg bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 active:scale-[0.99]"
+                            className="inline-flex w-full items-center justify-center rounded-full bg-loop-green-dark px-5 py-3.5 text-sm font-semibold text-white hover:bg-loop-green md:w-auto md:px-8"
                         >
                             Register Product
                         </button>
                     </div>
-
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     );
 }

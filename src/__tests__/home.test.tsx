@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom'
-import { render, screen } from '@testing-library/react' 
+import { render } from '@testing-library/react' 
 import Home from '../app/page';
 
 /**
@@ -10,7 +10,7 @@ import Home from '../app/page';
  */
 describe('Home component', () => {
   it('should render the Home component correctly', () => {
-    const { getByText } = render(<Home />);
-    expect(getByText('Welcome to Local Loop')).toBeInTheDocument();
+    const { getByRole } = render(<Home />);
+    expect(getByRole('heading', { name: 'LocalLoop. Find local. Love local.' })).toBeInTheDocument();
   }) 
 })
