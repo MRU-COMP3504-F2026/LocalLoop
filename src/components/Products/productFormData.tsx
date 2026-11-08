@@ -5,7 +5,7 @@ import type { ChangeEvent, SubmitEvent } from "react";
 import { useProduct } from "@/context/productContext";
 
 export default function ProductRegistrationForm() {
-    const { productData, setProductData } = useProduct();
+    const { productData, addProduct } = useProduct();
 
     const [formData, setFormData] = useState({
         productName: productData.productName,
@@ -30,7 +30,7 @@ export default function ProductRegistrationForm() {
 
     const handleSubmit = (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setProductData(formData);
+        addProduct(formData);
         console.log("Product registered:", formData);
     };
 
@@ -61,11 +61,11 @@ export default function ProductRegistrationForm() {
                         </label>
                         <select name="productType" value={formData.productType} onChange={handleChange} className={inputStyle} required>
                             <option value="">Select Product Type</option>
-                            <option value=""></option>
-                            <option value=""></option>
-                            <option value=""></option>
-                            <option value=""></option>
-                            <option value=""></option>
+                            <option value="Baked goods">Baked goods</option>
+                            <option value="Prepared food">Prepared food</option>
+                            <option value="Drink">Drink</option>
+                            <option value="Goods">Goods</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
 

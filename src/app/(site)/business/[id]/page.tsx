@@ -1,11 +1,7 @@
-import PageFrame from "@/components/pageFrame";
+"use client";
+
+import PublicBusinessProfile from "@/components/publicBusinessProfile";
 
 export default function BusinessProfile() {
-  return (
-    <PageFrame
-      eyebrow="public page"
-      title="business"
-      description="This is how neighbours see the shop."
-    />
-  );
+  return <PublicBusinessProfile />;
 }
