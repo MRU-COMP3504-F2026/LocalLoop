@@ -1,28 +1,41 @@
-import Image from "next/image";
- 
+"use client";
+
+import { useEffect, useState } from "react";
+
 type Props = {
   name: string;
   location: string;
   imageSrc: string;
 };
- 
+
 export default function BusinessSummaryCard({
   name,
   location,
   imageSrc,
 }: Props) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [imageSrc]);
+
+  const showImage = Boolean(imageSrc) && !failed;
+
   return (
     <div className="flex items-center gap-3 px-5 pt-8">
-      <Image
-        src={imageSrc}
-        alt={name}
-        width={52}
-        height={52}
-        className="h-[52px] w-[52px] rounded-xl object-cover"
-      />
+      {showImage ? (
+        <img
+          src={imageSrc}
+          alt=""
+          className="h-[52px] w-[52px] rounded-full object-cover"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div className="h-[52px] w-[52px] rounded-full bg-loop-sage" />
+      )}
       <div>
-        <p className="text-base font-semibold text-[#1f2a24]">{name}</p>
-        <p className="text-xs text-[#6b756e]">{location}</p>
+        <p className="font-serif text-2xl text-loop-green-dark">{name}</p>
+        <p className="text-xs text-loop-green">{location}</p>
       </div>
     </div>
   );

@@ -6,10 +6,10 @@ export default function PublishingHero(){
       <div className="flex justify-center">
         <ProgressBadge />
       </div>
-      <h2 className="mt-8 text-3xl font-bold leading-tight text-[#1f2a24]">
+      <h2 className="mt-8 font-serif text-[2.4rem] leading-tight text-loop-green-dark md:text-5xl">
         Putting Down your Roots...
       </h2>
-      <p className="mt-3 text-sm leading-relaxed text-[#6b756e]">
+      <p className="mt-3 text-sm leading-relaxed text-loop-green">
         We're saving your buisness details and images, then preparing your public profile. Just a Moment!
       </p>
     </section>

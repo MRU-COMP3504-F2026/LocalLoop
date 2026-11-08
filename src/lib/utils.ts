@@ -7,7 +7,7 @@ export const supabase = createClient(supabaseURL, supabaseAnonKey);
 
 export { cn } from "cn";
 
-// Code for connecting to supabase
+// supabase example, not wired up yet
 //import { supabase } from "@/lib/utils";
 // const {data: users, error } = await supabase.from("User").select();
 // if(error){

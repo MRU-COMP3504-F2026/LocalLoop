@@ -1,7 +1,45 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { useEffect, useState, type ReactNode } from "react";
 import BusinessDashboard from "@/components/businessDashboard";
 import SiteNav from "@/components/siteNav";
+import { AccountProvider, useAccount } from "@/context/accounts/accountContext";
+import { BusinessProvider, useBusiness } from "@/context/accounts/businessContext";
 import { getDashboardBusiness, SAMPLE_BUSINESS } from "@/lib/ownerBusiness";
+
+function renderWithAccount(ui: ReactNode) {
+  return render(
+    <AccountProvider>
+      <BusinessProvider>{ui}</BusinessProvider>
+    </AccountProvider>,
+  );
+}
+
+function FillCreatedShop({ children }: { children: ReactNode }) {
+  const { setAccountData } = useAccount();
+  const { setBusinessData } = useBusiness();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setAccountData({
+      username: "River Market Bakery",
+      email: "hello@rivermarket.example",
+      password: "secret-loaf",
+      confirmPassword: "secret-loaf",
+      accountType: "business",
+    });
+    setBusinessData((current) => ({
+      ...current,
+      location: "88 Bridgeland Avenue, Calgary",
+      description: "Sourdough and morning buns baked before the neighbourhood wakes up.",
+      category: ["Food & Beverage"],
+      onlineStore: "https://rivermarket.example",
+    }));
+    setReady(true);
+  }, [setAccountData, setBusinessData]);
+
+  if (!ready) return null;
+  return children;
+}
 
 jest.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
@@ -36,7 +74,7 @@ describe("BusinessDashboard", () => {
   });
 
   it("shows settings without a login wall", async () => {
-    render(<BusinessDashboard />);
+    renderWithAccount(<BusinessDashboard />);
     expect(screen.getByText("settings")).toBeInTheDocument();
     expect(await screen.findByText("Moss & Clay Studio")).toBeInTheDocument();
     expect(screen.queryByText(/sign in/i)).not.toBeInTheDocument();
@@ -46,7 +84,7 @@ describe("BusinessDashboard", () => {
 
   it("replaces sample data when a database business is found", async () => {
     mockGetDashboardBusiness.mockResolvedValue(sampleBusiness);
-    render(
+    renderWithAccount(
       <>
         <SiteNav />
         <BusinessDashboard />
@@ -64,7 +102,7 @@ describe("BusinessDashboard", () => {
   });
 
   it("keeps profile and account on different pages", () => {
-    render(
+    renderWithAccount(
       <>
         <SiteNav />
         <BusinessDashboard />
@@ -82,8 +120,30 @@ describe("BusinessDashboard", () => {
     expect(screen.queryByRole("link", { name: "Promos" })).not.toBeInTheDocument();
   });
 
+  it("uses the shop typed during account creation", async () => {
+    mockGetDashboardBusiness.mockResolvedValue(SAMPLE_BUSINESS);
+    renderWithAccount(
+      <FillCreatedShop>
+        <BusinessDashboard />
+      </FillCreatedShop>,
+    );
+
+    expect(await screen.findByRole("heading", { name: "River Market Bakery" })).toBeInTheDocument();
+    expect(screen.getByText("hello@rivermarket.example")).toBeInTheDocument();
+    expect(screen.getByText("Food & Beverage")).toBeInTheDocument();
+    expect(screen.getByText("88 Bridgeland Avenue, Calgary")).toBeInTheDocument();
+    expect(
+      screen.getByText("Sourdough and morning buns baked before the neighbourhood wakes up."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("https://rivermarket.example")).toBeInTheDocument();
+    expect(screen.getByText(/Mon 9:00 AM–5:00 PM/)).toBeInTheDocument();
+    expect(screen.queryByText("Moss & Clay Studio")).not.toBeInTheDocument();
+    expect(screen.queryByAltText("maker working at the studio bench")).not.toBeInTheDocument();
+    expect(screen.queryByAltText("handmade ceramics on the studio shelves")).not.toBeInTheDocument();
+  });
+
   it("uses the studio photos", () => {
-    render(<BusinessDashboard />);
+    renderWithAccount(<BusinessDashboard />);
     expect(screen.getByAltText("maker working at the studio bench")).toHaveAttribute(
       "src",
       "/images/business-1.jpg",
@@ -95,7 +155,7 @@ describe("BusinessDashboard", () => {
   });
 
   it("flips the preference switches", async () => {
-    render(<BusinessDashboard />);
+    renderWithAccount(<BusinessDashboard />);
     expect(await screen.findByText("Moss & Clay Studio")).toBeInTheDocument();
     const email = screen.getByRole("switch", { name: "Email alerts" });
     expect(email).toHaveAttribute("aria-checked", "true");

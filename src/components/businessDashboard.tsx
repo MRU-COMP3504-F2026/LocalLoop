@@ -7,10 +7,37 @@ import {
   SAMPLE_BUSINESS,
   type OwnerBusiness,
 } from "@/lib/ownerBusiness";
+import { useCreatedShop, type CreatedShop } from "@/hooks/useCreatedShop";
+import type { BusinessHours } from "@/context/accounts/businessContext";
+
 const IMAGES = {
   business: "/images/business-1.jpg",
   profile: "/images/profile-header.jpg",
 };
+
+const DAY_LABELS: { key: keyof BusinessHours; label: string }[] = [
+  { key: "monday", label: "Mon" },
+  { key: "tuesday", label: "Tue" },
+  { key: "wednesday", label: "Wed" },
+  { key: "thursday", label: "Thu" },
+  { key: "friday", label: "Fri" },
+  { key: "saturday", label: "Sat" },
+  { key: "sunday", label: "Sun" },
+];
+
+function formatTime(time: string) {
+  const [hours, minutes] = time.split(":").map(Number);
+  const period = hours >= 12 ? "PM" : "AM";
+  const hour = hours % 12 || 12;
+  return `${hour}:${String(minutes).padStart(2, "0")} ${period}`;
+}
+
+function hoursSummary(hours: BusinessHours) {
+  return DAY_LABELS.map(({ key, label }) => {
+    const day = hours[key];
+    return day.closed ? `${label} closed` : `${label} ${formatTime(day.open)}–${formatTime(day.close)}`;
+  }).join(" · ");
+}
 
 const PREF_KEY = "localloop-owner-prefs";
 
@@ -57,7 +84,26 @@ function ToggleRow({
   );
 }
 
+function ProfileDetails({ created }: { created: CreatedShop | null }) {
+  if (!created) {
+    return <p className="mt-3 text-loop-green">Photos, hours, and bio</p>;
+  }
+
+  return (
+    <div className="mt-3 space-y-2 text-sm text-loop-green">
+      <p>{created.description || "No description yet."}</p>
+      <p>{hoursSummary(created.hours)}</p>
+      {created.onlineStore ? (
+        <a href={created.onlineStore} className="inline-block font-semibold underline hover:text-loop-green-dark">
+          {created.onlineStore}
+        </a>
+      ) : null}
+    </div>
+  );
+}
+
 export default function BusinessDashboard() {
+  const created = useCreatedShop();
   const [business, setBusiness] = useState<OwnerBusiness>(SAMPLE_BUSINESS);
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
 
@@ -97,6 +143,19 @@ export default function BusinessDashboard() {
     });
   }
 
+  const shown: OwnerBusiness = created
+    ? {
+        business_id: "local",
+        owner_id: "local",
+        name: created.name || "Your business",
+        description: created.description,
+        category: created.category || null,
+        location: created.location || null,
+      }
+    : business;
+  const heroImage = created ? created.imageSrc : IMAGES.business;
+  const profileImage = created ? (created.images[1] ?? created.imageSrc) : IMAGES.profile;
+
   return (
     <main className="min-h-screen bg-loop-cream text-loop-green-dark md:pb-10">
       <div className="mx-auto flex w-full max-w-[430px] flex-col px-5 pt-8 md:max-w-6xl md:px-8 lg:px-10">
@@ -110,18 +169,25 @@ export default function BusinessDashboard() {
 
         <section
           id="account"
-          className="mt-8 scroll-mt-6 overflow-hidden rounded-[28px] bg-loop-sage md:mt-10 md:scroll-mt-24 md:grid md:grid-cols-[220px_minmax(0,1fr)] md:items-stretch lg:grid-cols-[280px_minmax(0,1fr)]"
+          className={`mt-8 scroll-mt-6 overflow-hidden rounded-[28px] bg-loop-sage md:mt-10 md:scroll-mt-24 ${
+            heroImage
+              ? "md:grid md:grid-cols-[220px_minmax(0,1fr)] md:items-stretch lg:grid-cols-[280px_minmax(0,1fr)]"
+              : ""
+          }`}
         >
-          <img
-            src={IMAGES.business}
-            alt="maker working at the studio bench"
-            className="h-44 w-full object-cover md:h-full"
-          />
+          {heroImage ? (
+            <img
+              src={heroImage}
+              alt={created ? "" : "maker working at the studio bench"}
+              className="h-44 w-full object-cover md:h-full"
+            />
+          ) : null}
           <div className="p-5 md:p-7">
             <p className="text-sm text-loop-green">Signed in as</p>
-            <h2 className="mt-1 font-serif text-2xl md:text-3xl">{business.name}</h2>
-            {business.category ? <p className="mt-2 text-sm text-loop-green">{business.category}</p> : null}
-            {business.location ? <p className="mt-2 text-sm text-loop-green">{business.location}</p> : null}
+            <h2 className="mt-1 font-serif text-2xl md:text-3xl">{shown.name}</h2>
+            {created?.email ? <p className="mt-2 text-sm text-loop-green">{created.email}</p> : null}
+            {shown.category ? <p className="mt-2 text-sm text-loop-green">{shown.category}</p> : null}
+            {shown.location ? <p className="mt-2 text-sm text-loop-green">{shown.location}</p> : null}
           </div>
         </section>
 
@@ -167,14 +233,16 @@ export default function BusinessDashboard() {
           </section>
 
           <section className="flex flex-col overflow-hidden rounded-[28px] bg-white">
-            <img
-              src={IMAGES.profile}
-              alt="handmade ceramics on the studio shelves"
-              className="h-36 w-full object-cover md:h-44"
-            />
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt={created ? "" : "handmade ceramics on the studio shelves"}
+                className="h-36 w-full object-cover md:h-44"
+              />
+            ) : null}
             <div className="flex flex-1 flex-col p-5">
               <h2 className="font-serif text-xl md:text-2xl">public profile</h2>
-              <p className="mt-3 text-loop-green">Photos, hours, and bio</p>
+              <ProfileDetails created={created} />
               <Link
                 href="/profile"
                 className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-loop-green-dark px-5 py-3.5 text-center text-sm font-semibold text-white hover:bg-loop-green md:mt-auto md:w-auto md:self-start md:px-8"

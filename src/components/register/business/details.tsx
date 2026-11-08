@@ -10,8 +10,55 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
-const BusinessDetails = () => {
+const fieldClass = "h-11 rounded-2xl bg-loop-cream px-4";
+
+const BusinessDetails = ({ section }: { section: "shop" | "extra" }) => {
     const { businessData, setBusinessData } = useBusiness();
+
+    if (section === "extra") {
+        return (
+            <FieldGroup className="grid gap-6 md:grid-cols-2">
+                <Field>
+                    <FieldLabel>Categories (Select up to 3)</FieldLabel>
+                    <CategorySelect
+                        selectedCategories={businessData.category}
+                        onChange={(categories) =>
+                            setBusinessData({
+                                ...businessData,
+                                category: categories,
+                            })
+                        }
+                    />
+                </Field>
+
+                <Field>
+                    <FieldLabel>Business Photos</FieldLabel>
+                    <ImageUpload
+                        images={businessData.images}
+                        onChange={(images) =>
+                            setBusinessData({
+                                ...businessData,
+                                images: images,
+                            })
+                        }
+                    />
+                </Field>
+
+                <Field className="md:col-span-2">
+                    <FieldLabel>Business Hours</FieldLabel>
+                    <OpeningHours
+                        hours={businessData.openingHours}
+                        onChange={(hours) =>
+                            setBusinessData({
+                                ...businessData,
+                                openingHours: hours,
+                            })
+                        }
+                    />
+                </Field>
+            </FieldGroup>
+        );
+    }
 
     return (
         <FieldGroup className="space-y-4">
@@ -26,6 +73,7 @@ const BusinessDetails = () => {
                             location: e.target.value,
                         })
                     }
+                    className={fieldClass}
                     required
                 />
             </Field>
@@ -43,32 +91,7 @@ const BusinessDetails = () => {
                             description: e.target.value,
                         })
                     }
-                />
-            </Field>
-
-            <Field>
-                <FieldLabel>Categories (Select up to 3)</FieldLabel>
-                <CategorySelect
-                    selectedCategories={businessData.category}
-                    onChange={(categories) =>
-                        setBusinessData({
-                            ...businessData,
-                            category: categories,
-                        })
-                    }
-                />
-            </Field>
-
-            <Field>
-                <FieldLabel>Business Photos</FieldLabel>
-                <ImageUpload
-                    images={businessData.images}
-                    onChange={(images) =>
-                        setBusinessData({
-                            ...businessData,
-                            images: images,
-                        })
-                    }
+                    className="min-h-28 rounded-2xl bg-loop-cream px-4"
                 />
             </Field>
 
@@ -86,19 +109,7 @@ const BusinessDetails = () => {
                             onlineStore: e.target.value,
                         })
                     }
-                />
-            </Field>
-
-            <Field>
-                <FieldLabel>Business Hours</FieldLabel>
-                <OpeningHours
-                    hours={businessData.openingHours}
-                    onChange={(hours) =>
-                        setBusinessData({
-                            ...businessData,
-                            openingHours: hours,
-                        })
-                    }
+                    className={fieldClass}
                 />
             </Field>
         </FieldGroup>
