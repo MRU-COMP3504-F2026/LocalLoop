@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useCreatedShop } from "@/hooks/useCreatedShop";
+import { useFileUrls } from "@/hooks/useFileUrls";
 import type { BusinessHours } from "@/context/accounts/businessContext";
+import { previewWords } from "@/lib/offering";
 import { useProduct } from "@/context/productContext";
 import { useService } from "@/context/serviceContext";
 
@@ -76,7 +79,7 @@ function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
               key={src}
               type="button"
               aria-label={`Show photo ${dot + 1}`}
-              aria-current={dot === current}
+              aria-current={dot === current ? "true" : undefined}
               onClick={() => setIndex(dot)}
               className={`h-2.5 w-2.5 rounded-full transition-colors duration-200 ${
                 dot === current ? "bg-loop-green-dark" : "bg-loop-sage hover:bg-loop-green"
@@ -98,28 +101,41 @@ function formatMoney(price: number) {
 export default function PublicBusinessProfile() {
   const shop = useCreatedShop();
   const { products } = useProduct();
-  const { serviceData } = useService();
+  const { services } = useService();
+  const productUrls = useFileUrls(products);
+  const serviceUrls = useFileUrls(services);
   const offerings = [
-    ...products
-      .filter((product) => product.productName.trim())
-      .map((product) => ({
-        kind: "Product" as const,
-        name: product.productName,
-        price: product.productPrice,
-        description: product.productDescription,
-        imageUrl: product.productImageUrl,
-      })),
-    ...(serviceData.serviceName.trim()
-      ? [
-          {
-            kind: "Service" as const,
-            name: serviceData.serviceName,
-            price: serviceData.servicePrice,
-            description: serviceData.serviceDescription,
-            imageUrl: serviceData.serviceImageUrl,
-          },
-        ]
-      : []),
+    ...products.flatMap((product, index) =>
+      product.productName.trim()
+        ? [
+            {
+              kind: "Product" as const,
+              name: product.productName,
+              price: product.productPrice,
+              // first 10 words on the card, the rest is on the product page
+              description: previewWords(product.productDescription),
+              imageUrl: productUrls[index]?.[0] ?? "",
+              details: product.details,
+              href: `/business/demo/product/${index}`,
+            },
+          ]
+        : [],
+    ),
+    ...services.flatMap((service, index) =>
+      service.serviceName.trim()
+        ? [
+            {
+              kind: "Service" as const,
+              name: service.serviceName,
+              price: service.servicePrice,
+              description: service.serviceDescription,
+              imageUrl: serviceUrls[index]?.[0] ?? "",
+              details: service.details,
+              href: `/business/demo/service/${index}`,
+            },
+          ]
+        : [],
+    ),
   ];
 
   if (!shop) {
@@ -220,25 +236,35 @@ export default function PublicBusinessProfile() {
           </p>
           <ul className="mt-6 space-y-6">
             {offerings.map((offering, index) => (
-              <li key={`${offering.kind}-${offering.name}-${index}`} className="flex gap-4">
-                {offering.imageUrl ? (
-                  <img
-                    src={offering.imageUrl}
-                    alt=""
-                    className="h-16 w-16 shrink-0 rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="h-16 w-16 shrink-0 rounded-full bg-loop-sage" aria-hidden="true" />
-                )}
-                <div className="min-w-0">
-                  <h3 className="font-semibold leading-tight">{offering.name}</h3>
-                  <p className="mt-1 text-sm text-loop-green">
-                    {offering.kind} · {formatMoney(offering.price)}
-                  </p>
-                  {offering.description ? (
-                    <p className="mt-3 text-sm leading-relaxed text-loop-green-dark">{offering.description}</p>
-                  ) : null}
-                </div>
+              <li key={`${offering.kind}-${offering.name}-${index}`}>
+                <Link
+                  href={offering.href}
+                  className="flex gap-4 rounded-2xl p-2 transition-colors duration-200 hover:bg-loop-cream"
+                >
+                  {offering.imageUrl ? (
+                    <img
+                      src={offering.imageUrl}
+                      alt=""
+                      className="h-16 w-16 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="h-16 w-16 shrink-0 rounded-full bg-loop-sage" aria-hidden="true" />
+                  )}
+                  <div className="min-w-0">
+                    <h3 className="font-semibold leading-tight">{offering.name}</h3>
+                    <p className="mt-1 text-sm text-loop-green">
+                      {offering.kind} · {formatMoney(offering.price)}
+                    </p>
+                    {offering.description ? (
+                      <p className="mt-3 text-sm leading-relaxed text-loop-green-dark">{offering.description}</p>
+                    ) : null}
+                    {offering.details.length > 0 ? (
+                      <p className="mt-2 text-sm text-loop-green">
+                        {offering.details.map((detail) => `${detail.label}: ${detail.value}`).join(" · ")}
+                      </p>
+                    ) : null}
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>

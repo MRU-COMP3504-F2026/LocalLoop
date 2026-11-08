@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "@/context/accounts/accountContext";
 import { useBusiness, type BusinessHours } from "@/context/accounts/businessContext";
@@ -128,16 +128,16 @@ export default function ProfilePage() {
   const [addingCategory, setAddingCategory] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const uploadedPhotos = useMemo(
-    () => form.files.map((file) => ({ file, url: URL.createObjectURL(file) })),
-    [form.files],
-  );
+  const [uploadedPhotos, setUploadedPhotos] = useState<{ file: File; url: string }[]>([]);
 
   useEffect(() => {
+    // making the url in render gets revoked and the photo just breaks
+    const next = form.files.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    setUploadedPhotos(next);
     return () => {
-      uploadedPhotos.forEach((photo) => URL.revokeObjectURL(photo.url));
+      next.forEach((photo) => URL.revokeObjectURL(photo.url));
     };
-  }, [uploadedPhotos]);
+  }, [form.files]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setSaved(false);
