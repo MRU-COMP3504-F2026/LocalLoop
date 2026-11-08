@@ -5,6 +5,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "public-ano
 
 export const supabase = createClient(supabaseURL, supabaseAnonKey);
 
+export { cn } from "cn";
+
 // Code for connecting to supabase
 //import { supabase } from "@/lib/utils";
 // const {data: users, error } = await supabase.from("User").select();

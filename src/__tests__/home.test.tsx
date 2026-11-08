@@ -11,6 +11,6 @@ import Home from '../app/page';
 describe('Home component', () => {
   it('should render the Home component correctly', () => {
     const { getByText } = render(<Home />);
-    expect(getByText('Hello, LocalLoop')).toBeInTheDocument();
+    expect(getByText('Welcome to Local Loop')).toBeInTheDocument();
   }) 
 })
