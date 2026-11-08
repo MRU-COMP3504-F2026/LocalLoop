@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import BusinessDashboard from "@/components/businessDashboard";
+import SiteNav from "@/components/siteNav";
 import { getDashboardBusiness, SAMPLE_BUSINESS } from "@/lib/ownerBusiness";
+
+jest.mock("next/navigation", () => ({
+  usePathname: () => "/dashboard",
+}));
 
 jest.mock("@/lib/ownerBusiness", () => {
   const actual = jest.requireActual("@/lib/ownerBusiness");
@@ -41,7 +46,12 @@ describe("BusinessDashboard", () => {
 
   it("replaces sample data when a database business is found", async () => {
     mockGetDashboardBusiness.mockResolvedValue(sampleBusiness);
-    render(<BusinessDashboard />);
+    render(
+      <>
+        <SiteNav />
+        <BusinessDashboard />
+      </>,
+    );
 
     expect(await screen.findByText("hello bakery")).toBeInTheDocument();
     expect(screen.getByText("food")).toBeInTheDocument();
@@ -54,7 +64,12 @@ describe("BusinessDashboard", () => {
   });
 
   it("keeps profile and account on different pages", () => {
-    render(<BusinessDashboard />);
+    render(
+      <>
+        <SiteNav />
+        <BusinessDashboard />
+      </>,
+    );
     expect(screen.getByRole("link", { name: "Profile" })).toHaveAttribute("href", "/profile");
     expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByRole("link", { name: "Listings" })).toHaveAttribute("href", "/product");
