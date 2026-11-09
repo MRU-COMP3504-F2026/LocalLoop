@@ -250,17 +250,6 @@ export default function ProfilePage() {
                   required
                 />
               </label>
-              <label className="block text-sm">
-                Confirm password
-                <input
-                  type="password"
-                  value={form.password}
-                  onChange={(event) => update("password", event.target.value)}
-                  autoComplete="new-password"
-                  placeholder="Leave blank to keep your current password"
-                  className={`${fieldClass} mt-2 h-11`}
-                />
-              </label>
             </div>
           </section>
 
