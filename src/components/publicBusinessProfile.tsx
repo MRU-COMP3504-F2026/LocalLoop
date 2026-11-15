@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCreatedShop } from "@/hooks/useCreatedShop";
-import { getBusiness, listProducts, type BusinessRecord, type SavedProduct } from "@/lib/database";
+import { getBusiness, listProducts, readHours, readImageUrls, readShowEmail, type BusinessRecord, type SavedProduct } from "@/lib/database";
 import { useFileUrls } from "@/hooks/useFileUrls";
 import type { BusinessHours } from "@/context/accounts/businessContext";
 import { previewWords } from "@/lib/offering";
@@ -140,7 +140,7 @@ export default function PublicBusinessProfile() {
               kind: "Product" as const,
               name: product.productName,
               price: product.productPrice,
-              // first 10 words on the card, the rest is on the product page
+              // first 10 words, rest is on the product page
               description: previewWords(product.productDescription),
               imageUrl: dbProducts.length > 0 ? product.imageUrl || "" : productUrls[index]?.[0] || product.imageUrl || "",
               details: product.details,
@@ -157,7 +157,7 @@ export default function PublicBusinessProfile() {
               name: service.serviceName,
               price: service.servicePrice,
               description: service.serviceDescription,
-              imageUrl: serviceUrls[index]?.[0] ?? "",
+              imageUrl: serviceUrls[index]?.[0] || service.imageUrl || "",
               details: service.details,
               href: `/business/${routeId || "demo"}/service/${index}`,
             },
@@ -173,9 +173,12 @@ export default function PublicBusinessProfile() {
         description: record.description ?? "",
         email: record.email ?? "",
         categories: record.category?.split(" · ").filter(Boolean) ?? [],
-        onlineStore: shop?.onlineStore ?? "",
-        hours: shop?.hours,
-        images: shop?.images ?? [],
+        onlineStore: record.online_store || shop?.onlineStore || "",
+        hours: readHours(record.opening_hours) ?? shop?.hours,
+        images: readImageUrls(record.opening_hours).length
+          ? readImageUrls(record.opening_hours)
+          : shop?.images ?? [],
+        showEmail: readShowEmail(record.opening_hours),
       }
     : shop
       ? {
@@ -187,6 +190,7 @@ export default function PublicBusinessProfile() {
           onlineStore: shop.onlineStore,
           hours: shop.hours,
           images: shop.images ?? [],
+          showEmail: false,
         }
       : null;
 
@@ -200,7 +204,8 @@ export default function PublicBusinessProfile() {
 
   const categories = view.categories;
   const images = view.images;
-  const hasContact = Boolean(view.email.trim() || view.onlineStore.trim());
+  const hasVisit = Boolean(view.onlineStore.trim());
+  const hasContact = view.showEmail && Boolean(view.email.trim());
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
@@ -229,55 +234,6 @@ export default function PublicBusinessProfile() {
           <p className="mt-3 max-w-3xl whitespace-pre-wrap text-loop-green md:text-lg">{view.description}</p>
         </section>
       ) : null}
-
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
-
-        {view.hours ? (
-        <section className="rounded-[28px] bg-white p-5 md:p-7">
-          <h2 className="font-serif text-xl md:text-2xl">Hours</h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {DAYS.map((day) => {
-              const schedule = view.hours?.[day.key];
-              if (!schedule) return null;
-              return (
-                <li key={day.key} className="flex justify-between gap-4">
-                  <span>{day.label}</span>
-                  <span className="text-loop-green">
-                    {schedule.closed
-                      ? "Closed"
-                      : `${formatTime(schedule.open)} – ${formatTime(schedule.close)}`}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-        ) : null}
-
-        {hasContact ? (
-          <section className="rounded-[28px] bg-white p-5 md:p-7">
-            <h2 className="font-serif text-xl md:text-2xl">Visit</h2>
-            <div className="mt-3 space-y-3 text-sm">
-              {view.onlineStore ? (
-                <a
-                  href={view.onlineStore}
-                  className="block font-semibold underline transition-colors duration-200 hover:text-loop-green"
-                >
-                  {view.onlineStore.replace(/^https?:\/\//, "")}
-                </a>
-              ) : null}
-              {view.email ? (
-                <a
-                  href={`mailto:${view.email}`}
-                  className="block text-loop-green underline transition-colors duration-200 hover:text-loop-green-dark"
-                >
-                  {view.email}
-                </a>
-              ) : null}
-            </div>
-          </section>
-        ) : null}
-      </div>
 
       {images.length > 0 ? <GalleryCarousel images={images} name={view.name} /> : null}
 
@@ -325,6 +281,54 @@ export default function PublicBusinessProfile() {
           </ul>
         </section>
       ) : null}
+
+      <div className="mt-4 grid gap-4 md:grid-cols-2">
+        {view.hours ? (
+          <section className="rounded-[28px] bg-white p-5 md:p-7">
+            <h2 className="font-serif text-xl md:text-2xl">Hours</h2>
+            <ul className="mt-3 space-y-2 text-sm">
+              {DAYS.map((day) => {
+                const schedule = view.hours?.[day.key];
+                if (!schedule) return null;
+                return (
+                  <li key={day.key} className="flex justify-between gap-4">
+                    <span>{day.label}</span>
+                    <span className="text-loop-green">
+                      {schedule.closed
+                        ? "Closed"
+                        : `${formatTime(schedule.open)} – ${formatTime(schedule.close)}`}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
+
+        {hasVisit ? (
+          <section className="rounded-[28px] bg-white p-5 md:p-7">
+            <h2 className="font-serif text-xl md:text-2xl">Visit</h2>
+            <a
+              href={view.onlineStore}
+              className="mt-3 block text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green"
+            >
+              {view.onlineStore.replace(/^https?:\/\//, "")}
+            </a>
+          </section>
+        ) : null}
+
+        {hasContact ? (
+          <section className="rounded-[28px] bg-white p-5 md:p-7">
+            <h2 className="font-serif text-xl md:text-2xl">Contact</h2>
+            <a
+              href={`mailto:${view.email}`}
+              className="mt-3 block text-sm text-loop-green underline transition-colors duration-200 hover:text-loop-green-dark"
+            >
+              {view.email}
+            </a>
+          </section>
+        ) : null}
+      </div>
     </main>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getBusiness, readBusinessId } from "@/lib/database";
+import { loadSessionBusiness } from "@/lib/database";
 import { getDashboardBusiness } from "@/lib/ownerBusiness";
 
 const LOGO_SRC = "/images/logo.png";
@@ -87,8 +87,7 @@ export default function SiteNav() {
 
   useEffect(() => {
     let cancelled = false;
-    const storedId = readBusinessId();
-    const load = storedId ? getBusiness(storedId) : getDashboardBusiness();
+    const load = loadSessionBusiness().then((result) => result ?? getDashboardBusiness());
 
     load
       .then((business) => {
@@ -102,6 +101,16 @@ export default function SiteNav() {
       cancelled = true;
     };
   }, []);
+
+  if (pathname === "/login") {
+    return (
+      <header className="border-b border-loop-border bg-loop-cream">
+        <div className="mx-auto flex w-full max-w-6xl px-5 py-4 md:px-8">
+          <SiteLogo />
+        </div>
+      </header>
+    );
+  }
 
   const tabs = [
     { href: "/profile", label: "Profile" },

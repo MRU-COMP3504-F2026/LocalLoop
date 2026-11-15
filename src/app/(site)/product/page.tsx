@@ -45,7 +45,7 @@ export default function ListingsPage() {
       quantity: service.serviceQuantity,
       quantityLabel: "spots",
       details: service.details,
-      imageUrl: serviceUrls[index]?.[0] ?? "",
+      imageUrl: serviceUrls[index]?.[0] || service.imageUrl || "",
       photoCount: service.images.length,
       editHref: "/registerService",
       edit: () => beginServiceEdit(index),

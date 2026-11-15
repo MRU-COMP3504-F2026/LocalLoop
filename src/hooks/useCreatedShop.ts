@@ -24,7 +24,7 @@ export function useCreatedShop(): CreatedShop | null {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   useEffect(() => {
-    // same blob url thing as the listings, don't build these in render
+    // same blob url thing as the listings
     const urls = businessData.images.map((image) => URL.createObjectURL(image));
     setImageUrls(urls);
     return () => {

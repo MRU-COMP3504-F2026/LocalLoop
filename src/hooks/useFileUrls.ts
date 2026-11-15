@@ -6,7 +6,7 @@ export function useFileUrls(items: { images: File[] }[]) {
   const [urls, setUrls] = useState<string[][]>([]);
 
   useEffect(() => {
-    // hold onto the urls we made so we can revoke those exact ones
+    // keep these so we can revoke them
     const next = items.map((item) => item.images.map((image) => URL.createObjectURL(image)));
     setUrls(next);
     return () => {

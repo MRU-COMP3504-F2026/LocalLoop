@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { clearBusinessId, getBusiness, readBusinessId } from "@/lib/database";
+import { signOutAccount } from "@/lib/auth";
+import { loadSessionBusiness, readShowEmail, setShowEmail } from "@/lib/database";
 import {
   getDashboardBusiness,
   type OwnerBusiness,
@@ -47,6 +48,7 @@ const defaultPrefs = {
   reviews: true,
   appearInSearch: true,
   showAddress: false,
+  showEmail: false,
 };
 
 type Prefs = typeof defaultPrefs;
@@ -109,12 +111,19 @@ export default function BusinessDashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    const storedId = readBusinessId();
-    const load = storedId ? getBusiness(storedId) : getDashboardBusiness();
+    const load = loadSessionBusiness().then((result) => result ?? getDashboardBusiness());
 
     load
       .then((result) => {
-        if (!cancelled) setBusiness(result);
+        if (cancelled) return;
+        setBusiness(result);
+        if (result && "opening_hours" in result) {
+          const hours = result.opening_hours;
+          setPrefs((current) => ({
+            ...current,
+            showEmail: readShowEmail(hours && typeof hours === "object" ? (hours as Record<string, unknown>) : null),
+          }));
+        }
       })
       .catch(() => undefined);
 
@@ -143,6 +152,9 @@ export default function BusinessDashboard() {
       }
       return next;
     });
+    if (key === "showEmail" && business?.business_id) {
+      void setShowEmail(business.business_id, value).catch(() => undefined);
+    }
   }
 
   const shown: OwnerBusiness | null = created
@@ -203,6 +215,7 @@ export default function BusinessDashboard() {
         </section>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4">
           <section className="rounded-[28px] bg-white p-5">
             <h2 className="font-serif text-xl md:text-2xl">preferences</h2>
             <div className="mt-4">
@@ -231,6 +244,17 @@ export default function BusinessDashboard() {
                 checked={prefs.showAddress}
                 onChange={(next) => updatePref("showAddress", next)}
               />
+            </div>
+          </section>
+
+          <section className="rounded-[28px] bg-white p-5">
+            <h2 className="font-serif text-xl md:text-2xl">contact</h2>
+            <div className="mt-4">
+              <ToggleRow
+                label="Show email"
+                checked={prefs.showEmail}
+                onChange={(next) => updatePref("showEmail", next)}
+              />
               <a
                 href="mailto:hello@localloop.ca"
                 className="flex w-full items-center justify-between border-t border-loop-border py-4 font-semibold last:pb-0 hover:text-loop-green"
@@ -242,6 +266,7 @@ export default function BusinessDashboard() {
               </a>
             </div>
           </section>
+          </div>
 
           <section className="flex flex-col overflow-hidden rounded-[28px] bg-white">
             {profileImage ? (
@@ -266,7 +291,14 @@ export default function BusinessDashboard() {
 
         <Link
           href="/login"
-          onClick={() => clearBusinessId()}
+          onClick={(event) => {
+            event.preventDefault();
+            void signOutAccount()
+              .catch(() => undefined)
+              .finally(() => {
+                window.location.href = "/login";
+              });
+          }}
           className="mt-8 mb-4 inline-flex w-full items-center justify-center rounded-full border border-loop-border bg-white px-5 py-3.5 text-center text-sm font-semibold text-loop-green-dark hover:bg-loop-sage md:w-auto md:self-start md:px-8"
         >
           Sign out
