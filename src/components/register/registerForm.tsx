@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { SubmitEventHandler } from "react";
 
 import AccountForm from "./accountForm";
@@ -8,14 +9,37 @@ import BusinessDetails from "./business/details";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
+import { useAccount } from "@/context/accounts/accountContext";
+import { useBusiness } from "@/context/accounts/businessContext";
+import { createBusiness, writeBusinessId } from "@/lib/database";
 
 const RegisterForm = () => {
     const router = useRouter();
+    const { accountData } = useAccount();
+    const { businessData } = useBusiness();
+    const [error, setError] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
 
     const handleSubmit: SubmitEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault();
+        setError(null);
+        setSaving(true);
 
-        router.push("/publishing");
+        void createBusiness({
+            name: accountData.username,
+            email: accountData.email,
+            description: businessData.description,
+            category: businessData.category.join(" · "),
+            location: businessData.location,
+        })
+            .then((business) => {
+                writeBusinessId(business.business_id);
+                router.push("/publishing");
+            })
+            .catch((saveError: Error) => {
+                setError(saveError.message);
+                setSaving(false);
+            });
     };
 
     return (
@@ -52,11 +76,14 @@ const RegisterForm = () => {
                     </div>
                 </section>
 
+                {error ? <p className="mt-6 text-sm text-red-700">{error}</p> : null}
+
                 <Button
                     type="submit"
+                    disabled={saving}
                     className="mt-8 h-auto w-full rounded-full bg-loop-green-dark px-5 py-3.5 text-sm font-semibold text-white hover:bg-loop-green md:w-auto md:px-8"
                 >
-                    Create Business Profile
+                    {saving ? "Saving..." : "Create Business Profile"}
                 </Button>
             </form>
         </div>

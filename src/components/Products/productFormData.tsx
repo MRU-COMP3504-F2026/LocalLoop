@@ -7,7 +7,7 @@ import { PRODUCT_DESCRIPTION_WORD_LIMIT, type OfferingDraft } from "@/lib/offeri
 const PRODUCT_TYPES = ["Baked goods", "Prepared food", "Drink", "Goods", "Home", "Wear"];
 
 export default function ProductRegistrationForm() {
-  const { products, addProduct, updateProduct, editingIndex } = useProduct();
+  const { products, addProduct, updateProduct, editingIndex, saveError } = useProduct();
   const editing = editingIndex !== null ? products[editingIndex] : undefined;
 
   function toProduct(draft: OfferingDraft) {
@@ -23,6 +23,8 @@ export default function ProductRegistrationForm() {
   }
 
   return (
+    <>
+    {saveError ? <p className="mb-4 text-sm text-red-700">{saveError}</p> : null}
     <OfferingForm
       key={editing ? `edit-${editingIndex}` : "new"}
       title={editing ? "edit a product" : "register a product"}
@@ -56,5 +58,6 @@ export default function ProductRegistrationForm() {
         else addProduct(product);
       }}
     />
+    </>
   );
 }

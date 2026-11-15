@@ -13,7 +13,7 @@ function formatMoney(price: number) {
 }
 
 export default function ListingsPage() {
-  const { products, removeProduct, beginEdit: beginProductEdit, clearEdit: clearProductEdit } = useProduct();
+  const { products, removeProduct, beginEdit: beginProductEdit, clearEdit: clearProductEdit, saveError } = useProduct();
   const { services, removeService, beginEdit: beginServiceEdit, clearEdit: clearServiceEdit } = useService();
   const productUrls = useFileUrls(products);
   const serviceUrls = useFileUrls(services);
@@ -29,7 +29,7 @@ export default function ListingsPage() {
       quantity: product.productQuantity,
       quantityLabel: "in stock",
       details: product.details,
-      imageUrl: productUrls[index]?.[0] ?? "",
+      imageUrl: productUrls[index]?.[0] || product.imageUrl || "",
       photoCount: product.images.length,
       editHref: "/registerProduct",
       edit: () => beginProductEdit(index),
@@ -78,6 +78,8 @@ export default function ListingsPage() {
           </Link>
         </div>
       </header>
+
+      {saveError ? <p className="mt-6 text-sm text-red-700">{saveError}</p> : null}
 
       {rows.length === 0 ? (
         <p className="mt-8 text-loop-green">Nothing listed yet.</p>

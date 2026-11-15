@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useCreatedShop } from "@/hooks/useCreatedShop";
+import { getBusiness, listProducts, type BusinessRecord, type SavedProduct } from "@/lib/database";
 import { useFileUrls } from "@/hooks/useFileUrls";
 import type { BusinessHours } from "@/context/accounts/businessContext";
 import { previewWords } from "@/lib/offering";
@@ -99,13 +101,39 @@ function formatMoney(price: number) {
 }
 
 export default function PublicBusinessProfile() {
+  const params = useParams<{ id: string }>();
+  const routeId = typeof params?.id === "string" ? params.id : "";
   const shop = useCreatedShop();
   const { products } = useProduct();
   const { services } = useService();
+  const [record, setRecord] = useState<BusinessRecord | null>(null);
+  const [dbProducts, setDbProducts] = useState<SavedProduct[]>([]);
   const productUrls = useFileUrls(products);
   const serviceUrls = useFileUrls(services);
+
+  useEffect(() => {
+    if (!routeId || routeId === "demo" || routeId === "local") return;
+
+    let cancelled = false;
+    getBusiness(routeId)
+      .then((row) => {
+        if (!cancelled) setRecord(row);
+      })
+      .catch(() => undefined);
+    listProducts(routeId)
+      .then((rows) => {
+        if (!cancelled) setDbProducts(rows);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [routeId]);
+
+  const listedProducts = dbProducts.length > 0 ? dbProducts : products;
   const offerings = [
-    ...products.flatMap((product, index) =>
+    ...listedProducts.flatMap((product, index) =>
       product.productName.trim()
         ? [
             {
@@ -114,9 +142,9 @@ export default function PublicBusinessProfile() {
               price: product.productPrice,
               // first 10 words on the card, the rest is on the product page
               description: previewWords(product.productDescription),
-              imageUrl: productUrls[index]?.[0] ?? "",
+              imageUrl: dbProducts.length > 0 ? product.imageUrl || "" : productUrls[index]?.[0] || product.imageUrl || "",
               details: product.details,
-              href: `/business/demo/product/${index}`,
+              href: `/business/${routeId || "demo"}/product/${index}`,
             },
           ]
         : [],
@@ -131,14 +159,38 @@ export default function PublicBusinessProfile() {
               description: service.serviceDescription,
               imageUrl: serviceUrls[index]?.[0] ?? "",
               details: service.details,
-              href: `/business/demo/service/${index}`,
+              href: `/business/${routeId || "demo"}/service/${index}`,
             },
           ]
         : [],
     ),
   ];
 
-  if (!shop) {
+  const view = record
+    ? {
+        name: record.name,
+        location: record.location ?? record.address ?? "",
+        description: record.description ?? "",
+        email: record.email ?? "",
+        categories: record.category?.split(" · ").filter(Boolean) ?? [],
+        onlineStore: shop?.onlineStore ?? "",
+        hours: shop?.hours,
+        images: shop?.images ?? [],
+      }
+    : shop
+      ? {
+          name: shop.name,
+          location: shop.location,
+          description: shop.description,
+          email: shop.email,
+          categories: shop.categories ?? [],
+          onlineStore: shop.onlineStore,
+          hours: shop.hours,
+          images: shop.images ?? [],
+        }
+      : null;
+
+  if (!view) {
     return (
       <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
         <h1 className="font-serif text-[2.4rem] leading-tight md:text-5xl">Shop</h1>
@@ -146,17 +198,17 @@ export default function PublicBusinessProfile() {
     );
   }
 
-  const categories = shop.categories ?? [];
-  const images = shop.images ?? [];
-  const hasContact = Boolean(shop.email.trim() || shop.onlineStore.trim());
+  const categories = view.categories;
+  const images = view.images;
+  const hasContact = Boolean(view.email.trim() || view.onlineStore.trim());
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
       <header>
         <h1 className="font-serif text-[2.4rem] leading-tight md:text-5xl lg:text-6xl">
-          {shop.name}
+          {view.name}
         </h1>
-        {shop.location ? <p className="mt-3 text-loop-green md:text-lg">{shop.location}</p> : null}
+        {view.location ? <p className="mt-3 text-loop-green md:text-lg">{view.location}</p> : null}
         {categories.length > 0 ? (
           <ul className="mt-4 flex flex-wrap gap-2">
             {categories.map((category) => (
@@ -171,20 +223,22 @@ export default function PublicBusinessProfile() {
         ) : null}
       </header>
 
-      {shop.description ? (
+      {view.description ? (
         <section className="mt-8 rounded-[28px] bg-white p-5 md:p-7">
           <h2 className="font-serif text-xl md:text-2xl">About</h2>
-          <p className="mt-3 max-w-3xl whitespace-pre-wrap text-loop-green md:text-lg">{shop.description}</p>
+          <p className="mt-3 max-w-3xl whitespace-pre-wrap text-loop-green md:text-lg">{view.description}</p>
         </section>
       ) : null}
 
       <div className="mt-4 grid gap-4 md:grid-cols-2">
 
+        {view.hours ? (
         <section className="rounded-[28px] bg-white p-5 md:p-7">
           <h2 className="font-serif text-xl md:text-2xl">Hours</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {DAYS.map((day) => {
-              const schedule = shop.hours[day.key];
+              const schedule = view.hours?.[day.key];
+              if (!schedule) return null;
               return (
                 <li key={day.key} className="flex justify-between gap-4">
                   <span>{day.label}</span>
@@ -198,25 +252,26 @@ export default function PublicBusinessProfile() {
             })}
           </ul>
         </section>
+        ) : null}
 
         {hasContact ? (
           <section className="rounded-[28px] bg-white p-5 md:p-7">
             <h2 className="font-serif text-xl md:text-2xl">Visit</h2>
             <div className="mt-3 space-y-3 text-sm">
-              {shop.onlineStore ? (
+              {view.onlineStore ? (
                 <a
-                  href={shop.onlineStore}
+                  href={view.onlineStore}
                   className="block font-semibold underline transition-colors duration-200 hover:text-loop-green"
                 >
-                  {shop.onlineStore.replace(/^https?:\/\//, "")}
+                  {view.onlineStore.replace(/^https?:\/\//, "")}
                 </a>
               ) : null}
-              {shop.email ? (
+              {view.email ? (
                 <a
-                  href={`mailto:${shop.email}`}
+                  href={`mailto:${view.email}`}
                   className="block text-loop-green underline transition-colors duration-200 hover:text-loop-green-dark"
                 >
-                  {shop.email}
+                  {view.email}
                 </a>
               ) : null}
             </div>
@@ -224,7 +279,7 @@ export default function PublicBusinessProfile() {
         ) : null}
       </div>
 
-      {images.length > 0 ? <GalleryCarousel images={images} name={shop.name} /> : null}
+      {images.length > 0 ? <GalleryCarousel images={images} name={view.name} /> : null}
 
       {offerings.length > 0 ? (
         <section className="mt-4 rounded-[28px] bg-white p-5 md:p-7">

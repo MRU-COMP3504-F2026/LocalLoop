@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "@/context/accounts/accountContext";
 import { useBusiness, type BusinessHours } from "@/context/accounts/businessContext";
+import { getBusiness, readBusinessId, updateBusiness } from "@/lib/database";
 
 const CATEGORY_OPTIONS = [
   "Ceramics",
@@ -127,6 +128,47 @@ export default function ProfilePage() {
   const [hoursOpen, setHoursOpen] = useState(false);
   const [addingCategory, setAddingCategory] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [businessId, setBusinessId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = readBusinessId();
+    if (!id) return;
+
+    let cancelled = false;
+    getBusiness(id)
+      .then((row) => {
+        if (cancelled || !row) return;
+        const categories = row.category?.split(" · ").filter(Boolean) ?? [];
+        setBusinessId(row.business_id);
+        setAccountData((current) => ({
+          ...current,
+          username: row.name,
+          email: row.email ?? current.email,
+        }));
+        setBusinessData((current) => ({
+          ...current,
+          location: row.location ?? row.address ?? "",
+          description: row.description ?? "",
+          category: categories,
+        }));
+        setForm((current) => ({
+          ...current,
+          name: row.name,
+          email: row.email ?? current.email,
+          location: row.location ?? row.address ?? "",
+          story: row.description ?? "",
+          categories,
+        }));
+      })
+      .catch((error: Error) => {
+        if (!cancelled) setSaveError(error.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setAccountData, setBusinessData]);
 
   const [uploadedPhotos, setUploadedPhotos] = useState<{ file: File; url: string }[]>([]);
 
@@ -178,6 +220,7 @@ export default function ProfilePage() {
   }
 
   function saveProfile() {
+    setSaveError(null);
     setAccountData((current) => ({
       ...current,
       username: form.name,
@@ -195,7 +238,22 @@ export default function ProfilePage() {
       openingHours: form.hours,
       images: form.files,
     }));
-    setSaved(true);
+
+    const id = businessId ?? readBusinessId();
+    if (!id) {
+      setSaved(true);
+      return;
+    }
+
+    void updateBusiness(id, {
+      name: form.name,
+      email: form.email,
+      description: form.story,
+      category: form.categories.join(" · "),
+      location: form.location,
+    })
+      .then(() => setSaved(true))
+      .catch((error: Error) => setSaveError(error.message));
   }
 
   const availableCategories = CATEGORY_OPTIONS.filter(
@@ -468,6 +526,8 @@ export default function ProfilePage() {
           </div>
         </section>
 
+        {saveError ? <p className="mt-6 text-sm text-red-700">{saveError}</p> : null}
+
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <button type="submit" className={primaryButtonClass}>
             {saved ? "Saved" : "Save profile changes"}
@@ -475,7 +535,7 @@ export default function ProfilePage() {
               <path d="m5 12 4.5 4.5L19 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <Link href="/business/demo" className={secondaryButtonClass}>
+          <Link href={businessId ? `/business/${businessId}` : "/explore"} className={secondaryButtonClass}>
             Preview as a neighbor
           </Link>
         </div>

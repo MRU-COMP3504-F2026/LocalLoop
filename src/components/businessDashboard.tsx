@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { clearBusinessId, getBusiness, readBusinessId } from "@/lib/database";
 import {
   getDashboardBusiness,
-  SAMPLE_BUSINESS,
   type OwnerBusiness,
 } from "@/lib/ownerBusiness";
 import { useCreatedShop, type CreatedShop } from "@/hooks/useCreatedShop";
@@ -104,13 +104,15 @@ function ProfileDetails({ created }: { created: CreatedShop | null }) {
 
 export default function BusinessDashboard() {
   const created = useCreatedShop();
-  const [business, setBusiness] = useState<OwnerBusiness>(SAMPLE_BUSINESS);
+  const [business, setBusiness] = useState<OwnerBusiness | null>(null);
   const [prefs, setPrefs] = useState<Prefs>(defaultPrefs);
 
   useEffect(() => {
     let cancelled = false;
+    const storedId = readBusinessId();
+    const load = storedId ? getBusiness(storedId) : getDashboardBusiness();
 
-    getDashboardBusiness()
+    load
       .then((result) => {
         if (!cancelled) setBusiness(result);
       })
@@ -143,7 +145,7 @@ export default function BusinessDashboard() {
     });
   }
 
-  const shown: OwnerBusiness = created
+  const shown: OwnerBusiness | null = created
     ? {
         business_id: "local",
         owner_id: "local",
@@ -153,8 +155,12 @@ export default function BusinessDashboard() {
         location: created.location || null,
       }
     : business;
-  const heroImage = created ? created.imageSrc : IMAGES.business;
-  const profileImage = created ? (created.images[1] ?? created.imageSrc) : IMAGES.profile;
+  const heroImage = created?.imageSrc || (business ? IMAGES.business : "");
+  const profileImage = created
+    ? (created.images[1] ?? created.imageSrc)
+    : business
+      ? IMAGES.profile
+      : "";
 
   return (
     <main className="min-h-screen bg-loop-cream text-loop-green-dark md:pb-10">
@@ -184,10 +190,15 @@ export default function BusinessDashboard() {
           ) : null}
           <div className="p-5 md:p-7">
             <p className="text-sm text-loop-green">Signed in as</p>
-            <h2 className="mt-1 font-serif text-2xl md:text-3xl">{shown.name}</h2>
+            <h2 className="mt-1 font-serif text-2xl md:text-3xl">{shown?.name ?? "No business yet"}</h2>
             {created?.email ? <p className="mt-2 text-sm text-loop-green">{created.email}</p> : null}
-            {shown.category ? <p className="mt-2 text-sm text-loop-green">{shown.category}</p> : null}
-            {shown.location ? <p className="mt-2 text-sm text-loop-green">{shown.location}</p> : null}
+            {shown?.category ? <p className="mt-2 text-sm text-loop-green">{shown.category}</p> : null}
+            {shown?.location ? <p className="mt-2 text-sm text-loop-green">{shown.location}</p> : null}
+            {!shown && !created ? (
+              <Link href="/register" className="mt-3 inline-block text-sm font-semibold underline">
+                Create a business
+              </Link>
+            ) : null}
           </div>
         </section>
 
@@ -255,6 +266,7 @@ export default function BusinessDashboard() {
 
         <Link
           href="/login"
+          onClick={() => clearBusinessId()}
           className="mt-8 mb-4 inline-flex w-full items-center justify-center rounded-full border border-loop-border bg-white px-5 py-3.5 text-center text-sm font-semibold text-loop-green-dark hover:bg-loop-sage md:w-auto md:self-start md:px-8"
         >
           Sign out

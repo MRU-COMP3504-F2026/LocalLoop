@@ -50,7 +50,7 @@ function withTimeout(promise: Promise<SessionResult>, ms: number): Promise<Sessi
 export async function getCurrentUser(): Promise<User | null> {
   if (
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    !(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
   ) {
     throw new Error("supabase is not configured");
   }
@@ -80,7 +80,7 @@ export const SAMPLE_BUSINESS: OwnerBusiness = {
   location: "1124 Kensington Road NW, Calgary",
 };
 
-export async function getDashboardBusiness(): Promise<OwnerBusiness> {
+export async function getDashboardBusiness(): Promise<OwnerBusiness | null> {
   try {
     const { data, error } = await supabase
       .from("Businesses")
@@ -88,12 +88,12 @@ export async function getDashboardBusiness(): Promise<OwnerBusiness> {
       .limit(1);
 
     if (error || !data?.[0]) {
-      return SAMPLE_BUSINESS;
+      return null;
     }
 
     return data[0];
   } catch {
-    return SAMPLE_BUSINESS;
+    return null;
   }
 }
 

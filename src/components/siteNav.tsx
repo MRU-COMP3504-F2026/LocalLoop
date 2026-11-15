@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getDashboardBusiness, SAMPLE_BUSINESS } from "@/lib/ownerBusiness";
+import { getBusiness, readBusinessId } from "@/lib/database";
+import { getDashboardBusiness } from "@/lib/ownerBusiness";
 
 const LOGO_SRC = "/images/logo.png";
 
@@ -82,14 +83,16 @@ function tabIsActive(pathname: string, label: string, href: string) {
 
 export default function SiteNav() {
   const pathname = usePathname() ?? "";
-  const [previewHref, setPreviewHref] = useState(`/business/${SAMPLE_BUSINESS.business_id}`);
+  const [previewHref, setPreviewHref] = useState("/explore");
 
   useEffect(() => {
     let cancelled = false;
+    const storedId = readBusinessId();
+    const load = storedId ? getBusiness(storedId) : getDashboardBusiness();
 
-    getDashboardBusiness()
+    load
       .then((business) => {
-        if (!cancelled) {
+        if (!cancelled && business) {
           setPreviewHref(`/business/${business.business_id}`);
         }
       })
