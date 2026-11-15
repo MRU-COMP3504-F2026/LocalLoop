@@ -113,7 +113,7 @@ describe("BusinessDashboard", () => {
     expect(screen.getByRole("link", { name: "Listings" })).toHaveAttribute("href", "/product");
     expect(screen.getAllByRole("link", { name: "Preview" })[0]).toHaveAttribute(
       "href",
-      `/business/${SAMPLE_BUSINESS.business_id}`,
+      "/explore",
     );
     expect(screen.getByRole("link", { name: "Open profile" })).toHaveAttribute("href", "/profile");
     expect(screen.getByRole("link", { name: "Sign out" })).toHaveAttribute("href", "/login");
@@ -142,9 +142,9 @@ describe("BusinessDashboard", () => {
     expect(screen.queryByAltText("handmade ceramics on the studio shelves")).not.toBeInTheDocument();
   });
 
-  it("uses the studio photos", () => {
+  it("uses the studio photos", async () => {
     renderWithAccount(<BusinessDashboard />);
-    expect(screen.getByAltText("maker working at the studio bench")).toHaveAttribute(
+    expect(await screen.findByAltText("maker working at the studio bench")).toHaveAttribute(
       "src",
       "/images/business-1.jpg",
     );

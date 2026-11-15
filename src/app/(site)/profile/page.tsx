@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { useAccount } from "@/context/accounts/accountContext";
 import { useBusiness, type BusinessHours } from "@/context/accounts/businessContext";
+import { loadSessionBusiness, readBusinessId, readHours, readImageUrls, updateBusiness, uploadPhotos } from "@/lib/database";
 
 const CATEGORY_OPTIONS = [
   "Ceramics",
@@ -127,11 +128,57 @@ export default function ProfilePage() {
   const [hoursOpen, setHoursOpen] = useState(false);
   const [addingCategory, setAddingCategory] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [businessId, setBusinessId] = useState<string | null>(null);
+  const [savedImageUrls, setSavedImageUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadSessionBusiness()
+      .then((row) => {
+        if (cancelled || !row) return;
+        const categories = row.category?.split(" · ").filter(Boolean) ?? [];
+        const hours = readHours(row.opening_hours);
+        const imageUrls = readImageUrls(row.opening_hours);
+        setBusinessId(row.business_id);
+        setSavedImageUrls(imageUrls);
+        setAccountData((current) => ({
+          ...current,
+          username: row.name,
+          email: row.email ?? current.email,
+        }));
+        setBusinessData((current) => ({
+          ...current,
+          location: row.location ?? row.address ?? "",
+          description: row.description ?? "",
+          category: categories,
+          onlineStore: row.online_store ?? current.onlineStore,
+          openingHours: hours ?? current.openingHours,
+        }));
+        setForm((current) => ({
+          ...current,
+          name: row.name,
+          email: row.email ?? current.email,
+          location: row.location ?? row.address ?? "",
+          story: row.description ?? "",
+          categories,
+          onlineStore: row.online_store ?? current.onlineStore,
+          hours: hours ?? current.hours,
+        }));
+      })
+      .catch((error: Error) => {
+        if (!cancelled) setSaveError(error.message);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [setAccountData, setBusinessData]);
 
   const [uploadedPhotos, setUploadedPhotos] = useState<{ file: File; url: string }[]>([]);
 
   useEffect(() => {
-    // making the url in render gets revoked and the photo just breaks
+    // don't build the url in render, it gets revoked
     const next = form.files.map((file) => ({ file, url: URL.createObjectURL(file) }));
     setUploadedPhotos(next);
     return () => {
@@ -178,6 +225,7 @@ export default function ProfilePage() {
   }
 
   function saveProfile() {
+    setSaveError(null);
     setAccountData((current) => ({
       ...current,
       username: form.name,
@@ -195,7 +243,32 @@ export default function ProfilePage() {
       openingHours: form.hours,
       images: form.files,
     }));
-    setSaved(true);
+
+    const id = businessId ?? readBusinessId();
+    if (!id) {
+      setSaved(true);
+      return;
+    }
+
+    void uploadPhotos(id, form.files)
+      .then((uploaded) => {
+        const imageUrls = [...savedImageUrls, ...uploaded];
+        return updateBusiness(id, {
+          name: form.name,
+          email: form.email,
+          description: form.story,
+          category: form.categories.join(" · "),
+          location: form.location,
+          onlineStore: form.onlineStore,
+          hours: form.hours,
+          imageUrls,
+        }).then(() => {
+          setSavedImageUrls(imageUrls);
+          setForm((current) => ({ ...current, files: [] }));
+          setSaved(true);
+        });
+      })
+      .catch((error: Error) => setSaveError(error.message));
   }
 
   const availableCategories = CATEGORY_OPTIONS.filter(
@@ -351,10 +424,25 @@ export default function ProfilePage() {
                   Edit photos
                 </button>
               </div>
-              {uploadedPhotos.length === 0 && (
+              {uploadedPhotos.length === 0 && savedImageUrls.length === 0 && (
                 <p className="mt-3 text-sm text-loop-green">No photos added during account creation.</p>
               )}
               <div className="mt-3 grid grid-cols-3 gap-3">
+                {savedImageUrls.map((url, index) => (
+                  <figure key={url} className="relative min-w-0">
+                    <div className="overflow-hidden rounded-2xl">
+                      <img src={url} alt="" className="aspect-square w-full object-cover" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSavedImageUrls((current) => current.filter((item) => item !== url))}
+                      aria-label={`Remove saved photo ${index + 1}`}
+                      className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-loop-green-dark text-sm text-white transition-colors duration-200 hover:bg-red-700"
+                    >
+                      ×
+                    </button>
+                  </figure>
+                ))}
                 {uploadedPhotos.map((photo, index) => (
                   <figure key={photo.url} className="relative min-w-0">
                     <div className="overflow-hidden rounded-2xl">
@@ -468,6 +556,8 @@ export default function ProfilePage() {
           </div>
         </section>
 
+        {saveError ? <p className="mt-6 text-sm text-red-700">{saveError}</p> : null}
+
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
           <button type="submit" className={primaryButtonClass}>
             {saved ? "Saved" : "Save profile changes"}
@@ -475,7 +565,7 @@ export default function ProfilePage() {
               <path d="m5 12 4.5 4.5L19 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
-          <Link href="/business/demo" className={secondaryButtonClass}>
+          <Link href={businessId ? `/business/${businessId}` : "/explore"} className={secondaryButtonClass}>
             Preview as a neighbor
           </Link>
         </div>

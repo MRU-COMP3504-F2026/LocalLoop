@@ -1,3 +1,4 @@
+import ExploreList from "@/components/explore/exploreList";
 import PageFrame from "@/components/pageFrame";
 
 export default function ExplorePage() {
@@ -6,6 +7,8 @@ export default function ExplorePage() {
       eyebrow="nearby"
       title="explore"
       description="Local businesses around you."
-    />
+    >
+      <ExploreList />
+    </PageFrame>
   );
 }

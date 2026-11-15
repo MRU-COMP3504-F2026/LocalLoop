@@ -3,7 +3,6 @@ import {
   getBusinessForOwner,
   getCurrentUser,
   getDashboardBusiness,
-  SAMPLE_BUSINESS,
 } from "@/lib/ownerBusiness";
 
 jest.mock("@/lib/utils", () => ({
@@ -133,8 +132,8 @@ describe("ownerBusiness", () => {
     });
   });
 
-  it("uses the sample business when the table is empty", async () => {
+  it("returns null when the table is empty", async () => {
     mockedSupabase.from.mockReturnValue(mockQuery({ data: [], error: null }));
-    await expect(getDashboardBusiness()).resolves.toEqual(SAMPLE_BUSINESS);
+    await expect(getDashboardBusiness()).resolves.toBeNull();
   });
 });
