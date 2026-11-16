@@ -94,14 +94,14 @@ describe("BusinessDashboard", () => {
     expect(await screen.findByText("hello bakery")).toBeInTheDocument();
     expect(screen.getByText("food")).toBeInTheDocument();
     expect(screen.queryByText("fresh bread downtown")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Preview" })[0]).toHaveAttribute(
+    expect((await screen.findAllByRole("link", { name: "Preview" }))[0]).toHaveAttribute(
       "href",
       "/business/biz-1",
     );
     expect(screen.getByRole("link", { name: "Listings" })).toHaveAttribute("href", "/product");
   });
 
-  it("keeps profile and account on different pages", () => {
+  it("keeps profile and account on different pages", async () => {
     renderWithAccount(
       <>
         <SiteNav />
@@ -111,7 +111,7 @@ describe("BusinessDashboard", () => {
     expect(screen.getByRole("link", { name: "Profile" })).toHaveAttribute("href", "/profile");
     expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByRole("link", { name: "Listings" })).toHaveAttribute("href", "/product");
-    expect(screen.getAllByRole("link", { name: "Preview" })[0]).toHaveAttribute(
+    expect((await screen.findAllByRole("link", { name: "Preview" }))[0]).toHaveAttribute(
       "href",
       "/explore",
     );
