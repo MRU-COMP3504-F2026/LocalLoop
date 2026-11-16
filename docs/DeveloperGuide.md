@@ -14,22 +14,24 @@ git clone <repo-url>
 After, follow the *Prerequisite and Build section* to install dependencies and set up environmental variables
 
 ## The layout of your directory structure. 
+```text
 localloop/
-- .github\workflows		- GitHub Actions CI Configuration
-- .next				- Holds all build output files needed to serve/render app
-- docs				- Project Documentation
-- excelfiles			- Holds files required for supabase
-- node_modules		- Holds dependencies for a node.js project to run
-- public				- Holds static files
-- icons				- Icon files
-- images			- Logos and photos
-- src				- Contains all application code for the project
-- tests				- Contains test cases 
-- app				-  Holds code for pages and backend routes
-- components 			- Holds reusable React components
-- context			- React context providers for shared data
-- hooks				- Custom React Hooks
-- lib				- Non-UI logic
+- .github/workflows/            - GitHub Actions CI configuration
+- .next/                        - Build output needed to serve/render the app (generated)
+- docs/                         - Project documentation
+- excelfiles/                   - Files required for Supabase
+- node_modules/                 - Dependencies for the Node.js project (generated)
+- public/                       - Static files served as-is
+    - icons/                    - Icon files
+    - images/                   - Logos and photos
+- src/                          - All application code for the project
+    - app/                      - Code for pages and backend routes
+    - components/               - Reusable React components
+    - context/                  - React context providers for shared data
+    - hooks/                    - Custom React hooks
+    - lib/                      - Non-UI logic
+    - tests/                    - Test cases
+```
 
 ## Prerequisites and build. 
 Once you have the repo on your device, in order to build the software, you must have Node.js 22 or later downloaded, as well as a modern browser to run the application. VS Code is also very much recommended but not required. As well, the repository does not include `.env.local`, so you must create it yourself. 
