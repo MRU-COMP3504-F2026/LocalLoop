@@ -10,7 +10,13 @@ jest.mock("../context/accounts/businessContext");
 const setAccountData = jest.fn();   
 const setBusinessData = jest.fn();
 
-const SAMPLE_ACCOUNT = { username: "Bakehouse", email: "hi@bakehouse.co", password: "" };
+const SAMPLE_ACCOUNT = { 
+  username: "River Market Bakery",
+  email: "hello@rivermarket.example",
+  password: "secret-loaf",
+  confirmPassword: "secret-loaf",
+  accountType: "business", 
+};
 const SAMPLE_BUSINESS = {
   location: "12 Mill Road",
   description: "Sourdough and pies",
@@ -25,7 +31,7 @@ const SAMPLE_BUSINESS = {
     Saturday: { open: "09:00", close: "17:00", closed: false },
     Sunday: { open: "09:00", close: "17:00", closed: false },
   },
-  images: [],
+  images: []
 };
 
 beforeEach(() => {
@@ -40,8 +46,11 @@ beforeAll(() => {
 });
 
 test("renders the profile prefilled from account and business data", () => {
+  console.log(SAMPLE_ACCOUNT, SAMPLE_BUSINESS);
   render(<ProfilePage />);   
 
   expect(screen.getByLabelText(/business name/i)).toHaveValue("Bakehouse"); 
   expect(screen.getByRole("button", { name: "Save profile changes" })).toBeInTheDocument();
 });
+
+// 
