@@ -59,18 +59,51 @@ Once an profile has been created, you will be able to explore the businesses tha
 
 ## User Guide
 
-As of its current iteration, LocalLoop is a web platform which can facilitate the following features:
-- Profile creation: the opening screen will prompt users to “join the loop” to create either a new business or shopper profile. Upon choosing to create a business profile, users may provide information regarding their business’s name, email, categories, images, a brief description, hours, location, and an online store link before publicizing the profile.
-- Edit profile: the edit profile page allows users to edit details regarding their business profile with the exception of the profile password.
-- Populate product/service listing: a tab which enables users to access their current listing and add a product or service. From here, users may add the product/service name, type, description, images, price, and quantity. You can edit or remove one later.
-- Preview business profile: upon accessing the tab, business users can preview the profile and how shoppers will see their profile from their inputted details to listings. The page is ordered as follows: 
+As of its current iteration, LocalLoop is a web platform which can facilitate the following features
+ - Profile creation
+ - Edit profile
+ - 
+ - 
+
+### Profile creation 
+- The opening screen will prompt users to “join the loop.” 
+![alt text](images\createProfile\joinTheLoop.png)
+- Upon clicking "join the loop," users are prompted to create either a business or shopper profile. 
+![alt text](images\createProfile\createAnProfile.png)
+    - Upon choosing to create a business profile, users may create a password for their profile and provide information regarding their business’s name, email, categories, images, a brief description, hours, location, and an online store link before publicizing the profile. 
+    ![alt text](images\createProfile\createBusiness1.png) ![alt text](images\createProfile\createBusiness2.png)
+    - Upon choosing to create a shopper profile, users may create a passowrd for the profile and provide an email and username. 
+    ![alt text](images\createProfile\createShopper.png)
+- After creating a business or shopper profile, click on "create business/shopper profile" to create the profile. 
+![alt text](images\createProfile\createProfile.png)
+
+### Edit profile: 
+
+- The profile tab allows users to edit details regarding their business profile with the exception of the profile password. 
+![alt text](images\editProfile\image.png)
+
+### Populate product/service listing 
+
+- A tab which enables users to access their current listing and add a product or service. 
+![alt text](images\listings\listingsTab.png) ![alt text](images\listings\listings1.png)
+- From here, users may add the product/service name, type, description, images, price, and quantity. 
+![alt text](images\listings\addProduct.png)
+- Upon clicking "add to listings," the item will be added to the list. You may either remove or edit the item from the list after returning to the listings page. 
+![alt text](images\listings\listings2.png)
+
+### Preview business profile
+
+- Upon accessing the tab, business users can preview the profile and how shoppers will see their profile from their inputted details to listings. The page is ordered as follows: 
     - Profile description 
     - Gallery
     - Products and services 
     - Hours
     - Visit (if the profile includes an online store) 
     - Email (if “Publicize email” is turned on)
-- Edit profile settings: as of writing, the settings page only has a one functional section called the contact section. The contact section contains a “Publicize email” switch which controls whether other users can see the business email. The other switches are placeholders and don't change the public page yet. The sign out button is also located on the page. 
+
+### Edit profile settings 
+- As of writing, the settings page only has a one functional section called the contact section. The contact section contains a “Publicize email” switch which controls whether other users can see the business email. ![alt text](images\settings\image.png)
+- The other switches are placeholders and don't change the public page yet. The sign out button is also located on the page. 
 
 The following features are still in development/WIP as of writing:
 - Location and neighbourhood filtering
