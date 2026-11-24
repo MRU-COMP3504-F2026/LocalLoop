@@ -4,12 +4,12 @@ import PageFrame from "@/components/pageFrame";
 const choices = [
   {
     href: "/register/business",
-    label: "Create Business Account",
+    label: "Create Business Profile",
     detail: "Put your shop on the map",
   },
   {
     href: "/register/customer",
-    label: "Create Shopper Account",
+    label: "Create Shopper Profile",
     detail: "Follow businesses nearby",
   },
 ];
@@ -18,8 +18,8 @@ export default function RegisterPage() {
   return (
     <PageFrame
       eyebrow="join in"
-      title="create an account"
-      description="Choose the kind of account you need."
+      title="create an profile"
+      description="Choose the kind of profile you need."
     >
       <ul className="grid gap-4 md:grid-cols-2">
         {choices.map((choice) => (

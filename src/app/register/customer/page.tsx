@@ -5,8 +5,8 @@ export default function ClientRegisterPage() {
   return (
     <PageFrame
       eyebrow="join in"
-      title="shopper account"
-      description="Create an account to follow local businesses."
+      title="shopper profile"
+      description="Create an profile to follow local businesses."
     >
       <ShopperForm />
     </PageFrame>

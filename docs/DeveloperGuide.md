@@ -111,9 +111,9 @@ This is a GitHub tag on the private repo, not a hosted site.
 
 Do these on a local production build (`npm run build`, then `npm start`), not the dev server:
 - The site loads without console errors
-- Sign up with a new test account/profile works
+- Sign up with a new test profile works
 - Log in and log out work, and a refresh keeps you logged in
-- Signing up again with the same email and the same account/profile type tells you to sign in instead
+- Signing up again with the same email and the same profile type tells you to sign in instead
 - Create a business profile, add an offering, and publish. The data appears in the Supabase table editor
 - Image upload works and the image displays
 - The README tag link opens the correct GitHub release

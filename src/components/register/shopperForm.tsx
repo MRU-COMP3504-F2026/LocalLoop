@@ -60,10 +60,10 @@ export default function ShopperForm() {
         disabled={saving}
         className="mt-6 h-auto rounded-full bg-loop-green-dark px-5 py-3.5 text-sm font-semibold text-white hover:bg-loop-green"
       >
-        {saving ? "Saving..." : "Create shopper account"}
+        {saving ? "Saving..." : "Create shopper profile"}
       </Button>
       <p className="mt-4 text-sm text-loop-green">
-        Already have an account?{" "}
+        Already have an profile?{" "}
         <Link href="/login" className="font-semibold text-loop-green-dark underline">
           Sign in
         </Link>

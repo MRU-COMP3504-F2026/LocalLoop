@@ -53,14 +53,14 @@ Open http://localhost:3000 and create an profile/profile. Leave that terminal op
 
 The home page has a “Use my location” button, but it doesn't ask for your location yet. It just opens explore. Choosing a neighbourhood is work in progress. There also isn't any ad tracking.
 
-One email can have one shopper account and one business profile, but not two of the same type. If you try to register a second one, it tells you the shopper account or business profile already exists and to sign in. Passwords need at least 6 characters. If you get a confirmation email, open that link before signing in.
+One email can have one shopper and business profile, but not two of the same type. If you try to register a second one, it tells you the shopper  or business profile already exists and to sign in. Passwords need at least 6 characters. If you get a confirmation email, open that link before signing in.
 
-Once an account/profile has been created, you will be able to explore the businesses that have signed up, or run your business.
+Once an profile has been created, you will be able to explore the businesses that have signed up, or run your business.
 
 ## User Guide
 
 As of its current iteration, LocalLoop is a web platform which can facilitate the following features:
-- Profile creation: the opening screen will prompt users to “join the loop” to create either a new business profile or shopper account. Upon choosing to create a business profile, users may provide information regarding their business’s name, email, categories, images, a brief description, hours, location, and an online store link before publicizing the profile.
+- Profile creation: the opening screen will prompt users to “join the loop” to create either a new business or shopper profile. Upon choosing to create a business profile, users may provide information regarding their business’s name, email, categories, images, a brief description, hours, location, and an online store link before publicizing the profile.
 - Edit profile: the edit profile page allows users to edit details regarding their business profile with the exception of the profile password.
 - Populate product/service listing: a tab which enables users to access their current listing and add a product or service. From here, users may add the product/service name, type, description, images, price, and quantity. You can edit or remove one later.
 - Preview business profile: upon accessing the tab, business users can preview the profile and how shoppers will see their profile from their inputted details to listings. The page is ordered as follows: 

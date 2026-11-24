@@ -83,7 +83,7 @@ const RegisterForm = () => {
             <form id="register-form" onSubmit={handleSubmit} className="mt-8">
                 <div className="grid gap-4 md:grid-cols-2">
                     <section className="rounded-[28px] bg-white p-5 md:p-7">
-                        <h2 className="font-serif text-xl md:text-2xl">account</h2>
+                        <h2 className="font-serif text-xl md:text-2xl">profile</h2>
                         <div className="mt-4">
                             <AccountForm accountType="business" />
                         </div>
@@ -115,7 +115,7 @@ const RegisterForm = () => {
                     {saving ? "Saving..." : "Create Business Profile"}
                 </Button>
                 <p className="mt-4 text-sm text-loop-green">
-                    Already have an account?{" "}
+                    Already have an profile?{" "}
                     <Link href="/login" className="font-semibold text-loop-green-dark underline">
                         Sign in
                     </Link>
