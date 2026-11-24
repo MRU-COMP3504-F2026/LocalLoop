@@ -47,7 +47,7 @@ function NavIcon({ name }: { name: string }) {
     );
   }
 
-  if (name === "Account") {
+  if (name === "Settings") {
     return (
       <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
         <circle cx="12" cy="8" r="3.1" stroke="currentColor" strokeWidth="1.6" />
@@ -116,7 +116,7 @@ export default function SiteNav() {
     { href: "/profile", label: "Profile" },
     { href: "/product", label: "Listings" },
     { href: previewHref, label: "Preview" },
-    { href: "/dashboard", label: "Account" },
+    { href: "/dashboard", label: "Settings" },
   ];
 
   return (

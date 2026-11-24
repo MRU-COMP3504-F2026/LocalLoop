@@ -178,7 +178,7 @@ export default function BusinessDashboard() {
     <main className="min-h-screen bg-loop-cream text-loop-green-dark md:pb-10">
       <div className="mx-auto flex w-full max-w-[430px] flex-col px-5 pt-8 md:max-w-6xl md:px-8 lg:px-10">
         <header>
-          <p className="text-sm uppercase tracking-[0.2em] text-loop-green">your account</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-loop-green">your profile</p>
           <h1 className="mt-3 font-serif text-[2.4rem] leading-tight md:text-5xl lg:text-6xl">
             settings
           </h1>
@@ -251,7 +251,7 @@ export default function BusinessDashboard() {
             <h2 className="font-serif text-xl md:text-2xl">contact</h2>
             <div className="mt-4">
               <ToggleRow
-                label="Show email"
+                label="Publicize email"
                 checked={prefs.showEmail}
                 onChange={(next) => updatePref("showEmail", next)}
               />

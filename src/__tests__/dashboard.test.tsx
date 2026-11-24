@@ -109,7 +109,7 @@ describe("BusinessDashboard", () => {
       </>,
     );
     expect(screen.getByRole("link", { name: "Profile" })).toHaveAttribute("href", "/profile");
-    expect(screen.getByRole("link", { name: "Account" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("link", { name: "Settings" })).toHaveAttribute("href", "/dashboard");
     expect(screen.getByRole("link", { name: "Listings" })).toHaveAttribute("href", "/product");
     expect((await screen.findAllByRole("link", { name: "Preview" }))[0]).toHaveAttribute(
       "href",

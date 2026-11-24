@@ -84,7 +84,7 @@ For user tests, run the software as instructed above in Prerequisites and Build.
 
 As of writing, the following test suites have been built:
 - Home (partially built), `src/__tests__/home.test.tsx`
-- Business owner account, `src/__tests__/ownerBusiness.test.ts`
+- Business owner profile, `src/__tests__/ownerBusiness.test.ts`
 - Business dashboard, `src/__tests__/dashboard.test.tsx`
 
 `src/__tests__/samples/sample.test.tsx` is just a dummy test. It isn't part of the app.
@@ -111,9 +111,9 @@ This is a GitHub tag on the private repo, not a hosted site.
 
 Do these on a local production build (`npm run build`, then `npm start`), not the dev server:
 - The site loads without console errors
-- Sign up with a new test account works
+- Sign up with a new test account/profile works
 - Log in and log out work, and a refresh keeps you logged in
-- Signing up again with the same email and the same account type tells you to sign in instead
+- Signing up again with the same email and the same account/profile type tells you to sign in instead
 - Create a business profile, add an offering, and publish. The data appears in the Supabase table editor
 - Image upload works and the image displays
 - The README tag link opens the correct GitHub release
