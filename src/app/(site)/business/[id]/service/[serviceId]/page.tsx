@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ServiceDetail from "@/app/(site)/business/[id]/service/[index]/serviceDetail";
+import ServiceDetail from "@/app/(site)/business/[id]/service/[serviceId]/serviceDetail";
 
 export default function ServiceDetailPage() {
   return (

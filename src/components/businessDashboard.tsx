@@ -9,36 +9,12 @@ import {
   type OwnerBusiness,
 } from "@/lib/ownerBusiness";
 import { useCreatedShop, type CreatedShop } from "@/hooks/useCreatedShop";
-import type { BusinessHours } from "@/context/accounts/businessContext";
+import { hoursByDay } from "@/lib/hours";
 
 const IMAGES = {
   business: "/images/business-1.jpg",
   profile: "/images/profile-header.jpg",
 };
-
-const DAY_LABELS: { key: keyof BusinessHours; label: string }[] = [
-  { key: "monday", label: "Mon" },
-  { key: "tuesday", label: "Tue" },
-  { key: "wednesday", label: "Wed" },
-  { key: "thursday", label: "Thu" },
-  { key: "friday", label: "Fri" },
-  { key: "saturday", label: "Sat" },
-  { key: "sunday", label: "Sun" },
-];
-
-function formatTime(time: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-  const period = hours >= 12 ? "PM" : "AM";
-  const hour = hours % 12 || 12;
-  return `${hour}:${String(minutes).padStart(2, "0")} ${period}`;
-}
-
-function hoursSummary(hours: BusinessHours) {
-  return DAY_LABELS.map(({ key, label }) => {
-    const day = hours[key];
-    return day.closed ? `${label} closed` : `${label} ${formatTime(day.open)}–${formatTime(day.close)}`;
-  }).join(" · ");
-}
 
 const PREF_KEY = "localloop-owner-prefs";
 
@@ -94,7 +70,7 @@ function ProfileDetails({ created }: { created: CreatedShop | null }) {
   return (
     <div className="mt-3 space-y-2 text-sm text-loop-green">
       <p>{created.description || "No description yet."}</p>
-      <p>{hoursSummary(created.hours)}</p>
+      <p>{hoursByDay(created.hours)}</p>
       {created.onlineStore ? (
         <a href={created.onlineStore} className="inline-block font-semibold underline hover:text-loop-green-dark">
           {created.onlineStore}

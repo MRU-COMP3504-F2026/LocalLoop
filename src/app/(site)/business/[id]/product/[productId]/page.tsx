@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import ProductDetail from "@/app/(site)/business/[id]/product/[index]/productDetail";
+import ProductDetail from "@/app/(site)/business/[id]/product/[productId]/productDetail";
 
 export default function ProductDetailPage() {
   return (

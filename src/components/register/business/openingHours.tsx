@@ -2,6 +2,8 @@
 "use client";
 
 import { BusinessHours } from "@/context/accounts/businessContext";
+import { DAYS } from "@/lib/hours";
+
 
 import {
     Accordion,
@@ -17,15 +19,7 @@ type OpeningHoursProps = {
 
 const OpeningHours = (props: OpeningHoursProps) => {
 
-    const days: { key: keyof BusinessHours; label: string }[] = [
-        { key: "monday", label: "Monday" },
-        { key: "tuesday", label: "Tuesday" },
-        { key: "wednesday", label: "Wednesday" },
-        { key: "thursday", label: "Thursday" },
-        { key: "friday", label: "Friday" },
-        { key: "saturday", label: "Saturday" },
-        { key: "sunday", label: "Sunday" },
-    ];
+
 
     const updateTime = (
         day: keyof BusinessHours,
@@ -65,7 +59,7 @@ const OpeningHours = (props: OpeningHoursProps) => {
 
                 <AccordionContent>
                     <div className="space-y-4 pt-2">
-                        {days.map((day) => (
+                        {DAYS.map((day) => (
                             <div
                                 key={day.key}
                                 className="flex flex-col gap-3 border-b pb-4 sm:flex-row sm:items-center"

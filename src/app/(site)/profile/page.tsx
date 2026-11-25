@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAccount } from "@/context/accounts/accountContext";
 import { useBusiness, type BusinessHours } from "@/context/accounts/businessContext";
 import { loadSessionBusiness, readBusinessId, readHours, readImageUrls, updateBusiness, uploadPhotos } from "@/lib/database";
+import { DAYS, summarizeHours, type DayKey } from "@/lib/hours";
 
 const CATEGORY_OPTIONS = [
   "Ceramics",
@@ -17,17 +18,6 @@ const CATEGORY_OPTIONS = [
   "Other",
 ];
 
-const DAYS = [
-  { key: "monday", short: "Mon", label: "Monday" },
-  { key: "tuesday", short: "Tue", label: "Tuesday" },
-  { key: "wednesday", short: "Wed", label: "Wednesday" },
-  { key: "thursday", short: "Thu", label: "Thursday" },
-  { key: "friday", short: "Fri", label: "Friday" },
-  { key: "saturday", short: "Sat", label: "Saturday" },
-  { key: "sunday", short: "Sun", label: "Sunday" },
-] as const;
-
-type DayKey = (typeof DAYS)[number]["key"];
 
 type FormState = {
   name: string;
@@ -56,36 +46,7 @@ function compactTime(time: string) {
   return minutes ? `${hour}:${String(minutes).padStart(2, "0")}` : String(hour);
 }
 
-function summarizeHours(hours: BusinessHours) {
-  const open: string[] = [];
-  const closed: string[] = [];
-  let index = 0;
 
-  while (index < DAYS.length) {
-    const day = DAYS[index];
-    const schedule = hours[day.key];
-
-    if (schedule.closed) {
-      closed.push(`${day.short} closed`);
-      index += 1;
-      continue;
-    }
-
-    let end = index;
-    while (end + 1 < DAYS.length) {
-      const next = hours[DAYS[end + 1].key];
-      if (next.closed || next.open !== schedule.open || next.close !== schedule.close) break;
-      end += 1;
-    }
-
-    const span =
-      index === end ? day.short : `${day.short}–${DAYS[end].short}`;
-    open.push(`${span} ${compactTime(schedule.open)}–${compactTime(schedule.close)}`);
-    index = end + 1;
-  }
-
-  return [...open, ...closed].join(" · ");
-}
 
 function pinLabel(location: string) {
   const parts = location.split(",").map((part) => part.trim()).filter(Boolean);
@@ -131,6 +92,8 @@ export default function ProfilePage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [savedImageUrls, setSavedImageUrls] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -168,6 +131,9 @@ export default function ProfilePage() {
       })
       .catch((error: Error) => {
         if (!cancelled) setSaveError(error.message);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
 
     return () => {
@@ -225,55 +191,67 @@ export default function ProfilePage() {
   }
 
   function saveProfile() {
-    setSaveError(null);
-    setAccountData((current) => ({
-      ...current,
-      username: form.name,
-      email: form.email,
-      ...(form.password
-        ? { password: form.password, confirmPassword: form.password }
-        : {}),
-    }));
-    setBusinessData((current) => ({
-      ...current,
-      location: form.location,
-      description: form.story,
-      category: form.categories,
-      onlineStore: form.onlineStore,
-      openingHours: form.hours,
-      images: form.files,
-    }));
+  if (saving) return;
+  setSaveError(null);
 
-    const id = businessId ?? readBusinessId();
-    if (!id) {
-      setSaved(true);
-      return;
-    }
-
-    void uploadPhotos(id, form.files)
-      .then((uploaded) => {
-        const imageUrls = [...savedImageUrls, ...uploaded];
-        return updateBusiness(id, {
-          name: form.name,
-          email: form.email,
-          description: form.story,
-          category: form.categories.join(" · "),
-          location: form.location,
-          onlineStore: form.onlineStore,
-          hours: form.hours,
-          imageUrls,
-        }).then(() => {
-          setSavedImageUrls(imageUrls);
-          setForm((current) => ({ ...current, files: [] }));
-          setSaved(true);
-        });
-      })
-      .catch((error: Error) => setSaveError(error.message));
+  const id = businessId ?? readBusinessId();
+  if (!id) {
+    setSaveError("Couldn't find your business. Please sign in again.");
+    return;
   }
+
+  setSaving(true);
+
+  uploadPhotos(id, form.files)
+    .then(async (uploaded) => {
+      const imageUrls = [...savedImageUrls, ...uploaded];
+      await updateBusiness(id, {
+        name: form.name,
+        email: form.email,
+        description: form.story,
+        category: form.categories.join(" · "),
+        location: form.location,
+        onlineStore: form.onlineStore,
+        hours: form.hours,
+        imageUrls,
+      });
+      return imageUrls;
+    })
+    .then((imageUrls) => {
+      setSavedImageUrls(imageUrls);
+      setAccountData((current) => ({
+        ...current,
+        username: form.name,
+        email: form.email,
+      }));
+      setBusinessData((current) => ({
+        ...current,
+        location: form.location,
+        description: form.story,
+        category: form.categories,
+        onlineStore: form.onlineStore,
+        openingHours: form.hours,
+        images: [], // uploaded now, so they live in savedImageUrls
+      }));
+      setForm((current) => ({ ...current, files: [] }));
+      setSaved(true);
+    })
+    .catch((error: Error) => setSaveError(error.message))
+    .finally(() => setSaving(false));
+}
 
   const availableCategories = CATEGORY_OPTIONS.filter(
     (category) => !form.categories.includes(category),
   );
+
+
+  if (loading) {
+    return (
+      <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
+        <p className="text-loop-green">Loading your profile...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
@@ -559,8 +537,8 @@ export default function ProfilePage() {
         {saveError ? <p className="mt-6 text-sm text-red-700">{saveError}</p> : null}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <button type="submit" className={primaryButtonClass}>
-            {saved ? "Saved" : "Save profile changes"}
+          <button type="submit" disabled={saving} className={`${primaryButtonClass} disabled:opacity-60`}>
+            {saving ? "Saving..." : saved ? "Saved" : "Save profile changes"}
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
               <path d="m5 12 4.5 4.5L19 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -571,5 +549,5 @@ export default function ProfilePage() {
         </div>
       </form>
     </main>
-  );
+  ); 
 }
