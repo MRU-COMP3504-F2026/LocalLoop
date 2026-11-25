@@ -1,6 +1,8 @@
 # LocalLoop
 
-LocalLoop is a Next.js app for neighbourhood shops. An owner can sign up, fill in a profile, and list products or services. A visitor can look at the public version of that shop. Signup and listings stay in the browser for now, so a refresh clears them. You do not need Supabase keys to build, test, or click through the app.
+LocalLoop is a Next.js app for neighbourhood shops. An owner can sign up, fill in a profile, and list products or services. A shopper can sign up and look through the public shop pages. Accounts, shops, and listings are stored in Supabase. The site is not hosted, so you run it locally. The repo is private.
+
+**Release:** [v0.1.0-beta](https://github.com/MRU-COMP3504-F2026/LocalLoop/releases/tag/v0.1.0-beta)
 
 **Communication channel:** https://discord.gg/PJrHRZRQz
 
@@ -13,6 +15,8 @@ LocalLoop is a Next.js app for neighbourhood shops. An owner can sign up, fill i
 - Seila Kennedy
 - Daniel Anzola
 
+Guides: [docs/UserManual.md](docs/UserManual.md) and [docs/DeveloperGuide.md](docs/DeveloperGuide.md).
+
 ## Setup
 
 Node.js 20 or newer, and npm.
@@ -20,6 +24,8 @@ Node.js 20 or newer, and npm.
 ```bash
 npm install
 ```
+
+Copy `.env.example` to `.env.local` and fill in the shared Supabase URL and publishable (or anon) key. Ask a teammate for the values. Don't commit `.env.local`. Automated tests still run without those keys.
 
 ## Run
 
@@ -35,7 +41,7 @@ Open http://localhost:3000.
 npm test
 ```
 
-Jest runs once and exits.
+Jest runs once and exits. `npm run test:coverage` prints a coverage report.
 
 ## Build
 
@@ -48,14 +54,21 @@ npm start
 
 ## What works
 
-- Home page, and the link into business signup
-- Creating a business: account, location, description, categories, photos, and hours. Submit goes to the publishing screen, then the profile
+With a filled-in `.env.local`, accounts, shops, products, services, and photos are saved in Supabase. A refresh does not clear them.
+
+- Home page, business signup, and shopper signup
+- Sign in and sign out. A refresh keeps the session
+- Creating a business: account, location, description, categories, photos, hours, and an online store link. Submit goes to the publishing screen, then the profile
 - Editing that profile, and a public preview of the same shop
 - Adding, editing, and removing products and services, including photos. Listings shows them. Opening one from the preview shows the full description
-- The account page shows the shop from signup. If nothing has been entered, it shows a sample shop instead
+- Explore lists the businesses saved in the database
+- The account page, including the Show email switch. That choice is saved with the shop. The other switches stay in this browser
 
 ## Not done yet
 
-- Login is blank
-- Explore and shopper signup are only a heading
-- Nothing is stored for good. `.env.example` is there for a later Supabase hookup, and you can skip it
+Saving still needs `.env.local`. Without those keys, signup and listings cannot be stored.
+
+- The location button does not read your location, and explore is not filtered by neighbourhood
+- Search
+- Buying a product or service, and processing an order
+- Changing the login password after signup

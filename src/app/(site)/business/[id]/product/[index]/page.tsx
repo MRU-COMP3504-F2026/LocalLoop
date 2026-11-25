@@ -1,9 +1,10 @@
-"use client";
-
-import { useParams } from "next/navigation";
-import OfferingDetail from "@/components/offeringDetail";
+import { Suspense } from "react";
+import ProductDetail from "@/app/(site)/business/[id]/product/[index]/productDetail";
 
 export default function ProductDetailPage() {
-  const params = useParams<{ index: string }>();
-  return <OfferingDetail kind="product" index={Number(params.index)} />;
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-loop-cream" />}>
+      <ProductDetail />
+    </Suspense>
+  );
 }

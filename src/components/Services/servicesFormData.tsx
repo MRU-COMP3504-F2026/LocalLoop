@@ -7,7 +7,7 @@ import type { OfferingDraft } from "@/lib/offering";
 const SERVICE_TYPES = ["Class", "Appointment", "Repair", "Rental", "Experience"];
 
 export default function ServiceRegistrationForm() {
-  const { services, addService, updateService, editingIndex } = useService();
+  const { services, addService, updateService, editingIndex, saveError } = useService();
   const editing = editingIndex !== null ? services[editingIndex] : undefined;
 
   function toService(draft: OfferingDraft) {
@@ -23,6 +23,8 @@ export default function ServiceRegistrationForm() {
   }
 
   return (
+    <>
+    {saveError ? <p className="mb-4 text-sm text-red-700">{saveError}</p> : null}
     <OfferingForm
       key={editing ? `edit-${editingIndex}` : "new"}
       title={editing ? "edit a service" : "register a service"}
@@ -55,5 +57,6 @@ export default function ServiceRegistrationForm() {
         else addService(service);
       }}
     />
+    </>
   );
 }

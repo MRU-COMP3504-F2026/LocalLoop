@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useProduct } from "@/context/productContext";
 import { useService } from "@/context/serviceContext";
 import { useFileUrls } from "@/hooks/useFileUrls";
+import { listProducts, type SavedProduct } from "@/lib/database";
 
 function formatMoney(price: number) {
   const rounded = Math.round(price * 100) / 100;
@@ -67,20 +69,42 @@ function PhotoCarousel({ images, name }: { images: string[]; name: string }) {
 }
 
 export default function OfferingDetail({ kind, index }: { kind: "product" | "service"; index: number }) {
+  const params = useParams<{ id?: string }>();
+  const businessId = typeof params?.id === "string" ? params.id : "";
   const { products } = useProduct();
   const { services } = useService();
+  const [dbProduct, setDbProduct] = useState<SavedProduct | null>(null);
   const productUrls = useFileUrls(products);
   const serviceUrls = useFileUrls(services);
-  const product = kind === "product" ? products[index] : undefined;
+
+  useEffect(() => {
+    if (kind !== "product" || !businessId || businessId === "demo" || businessId === "local") return;
+
+    let cancelled = false;
+    listProducts(businessId)
+      .then((rows) => {
+        if (!cancelled) setDbProduct(rows[index] ?? null);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [businessId, index, kind]);
+
+  const product = kind === "product" ? products[index] ?? dbProduct ?? undefined : undefined;
   const service = kind === "service" ? services[index] : undefined;
-  const images = (kind === "product" ? productUrls[index] : serviceUrls[index]) ?? [];
+  const storedImage = product?.imageUrl ? [product.imageUrl] : [];
+  const images = ((kind === "product" ? productUrls[index] : serviceUrls[index]) ?? []).length
+    ? (kind === "product" ? productUrls[index] : serviceUrls[index]) ?? []
+    : storedImage;
   const name = product?.productName ?? service?.serviceName ?? "";
   const missing = !name.trim();
 
   if (missing) {
     return (
       <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
-        <Link href="/business/demo" className="text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green">
+        <Link href={businessId ? `/business/${businessId}` : "/explore"} className="text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green">
           Back to shop
         </Link>
         <h1 className="mt-6 font-serif text-4xl">This listing is no longer available.</h1>
@@ -98,7 +122,7 @@ export default function OfferingDetail({ kind, index }: { kind: "product" | "ser
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
-      <Link href="/business/demo" className="text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green">
+      <Link href={businessId ? `/business/${businessId}` : "/explore"} className="text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green">
         Back to shop
       </Link>
       <p className="mt-6 text-sm uppercase tracking-[0.2em] text-loop-green">{label}</p>
