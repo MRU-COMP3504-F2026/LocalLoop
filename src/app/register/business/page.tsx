@@ -1,4 +1,3 @@
-
 import { RegisterForm } from "@/components/register/registerForm";
 
 const BusinessRegisterPage = () => {

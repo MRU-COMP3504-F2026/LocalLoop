@@ -6,7 +6,9 @@ import { useParams } from "next/navigation";
 import { useProduct } from "@/context/productContext";
 import { useService } from "@/context/serviceContext";
 import { useFileUrls } from "@/hooks/useFileUrls";
-import { listProducts, type SavedProduct } from "@/lib/database";
+import { listProducts, listServices, type SavedProduct } from "@/lib/database";
+import type { ProductData } from "@/context/productContext";
+import type { ServiceData } from "@/context/serviceContext";
 
 function formatMoney(price: number) {
   const rounded = Math.round(price * 100) / 100;
@@ -68,43 +70,74 @@ function PhotoCarousel({ images, name }: { images: string[]; name: string }) {
   );
 }
 
-export default function OfferingDetail({ kind, index }: { kind: "product" | "service"; index: number }) {
+export default function OfferingDetail({ kind, itemId }: { kind: "product" | "service"; itemId: string }) {
   const params = useParams<{ id?: string }>();
   const businessId = typeof params?.id === "string" ? params.id : "";
-  const { products } = useProduct();
-  const { services } = useService();
-  const [dbProduct, setDbProduct] = useState<SavedProduct | null>(null);
-  const productUrls = useFileUrls(products);
-  const serviceUrls = useFileUrls(services);
+
+  const [product, setProduct] = useState<SavedProduct | null>(null);
+  const [service, setService] = useState<ServiceData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (kind !== "product" || !businessId || businessId === "demo" || businessId === "local") return;
+    if (!businessId || !itemId) {
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
-    listProducts(businessId)
-      .then((rows) => {
-        if (!cancelled) setDbProduct(rows[index] ?? null);
+    setLoading(true);
+    setError(null);
+    setProduct(null);
+    setService(null);
+
+    const request =
+      kind === "product"
+        ? listProducts(businessId).then((rows) => {
+            if (!cancelled) setProduct(rows.find((row) => row.productId === itemId) ?? null);
+          })
+        : listServices(businessId).then((rows) => {
+            if (!cancelled) setService(rows.find((row) => row.serviceId === itemId) ?? null);
+          });
+
+    request
+      .catch((loadError: Error) => {
+        console.error(loadError);
+        if (!cancelled) setError("Couldn't load this listing.");
       })
-      .catch(() => undefined);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [businessId, index, kind]);
+  }, [businessId, itemId, kind]);
 
-  const product = kind === "product" ? products[index] ?? dbProduct ?? undefined : undefined;
-  const service = kind === "service" ? services[index] : undefined;
-  const storedImage = product?.imageUrl ? [product.imageUrl] : [];
-  const images = ((kind === "product" ? productUrls[index] : serviceUrls[index]) ?? []).length
-    ? (kind === "product" ? productUrls[index] : serviceUrls[index]) ?? []
-    : storedImage;
+  const backHref = businessId ? `/business/${businessId}` : "/explore";
+
+  if (loading) {
+    return (
+      <main className="mx-auto w-full max-w-6xl px-5 pt-8 pb-10 md:px-8 lg:px-10">
+        <p className="text-loop-green">Loading...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="mx-auto w-full max-w-6xl px-5 pt-8 pb-10 md:px-8 lg:px-10">
+        <p className="text-sm text-red-700">{error}</p>
+      </main>
+    );
+  }
+
   const name = product?.productName ?? service?.serviceName ?? "";
-  const missing = !name.trim();
 
-  if (missing) {
+  if (!name.trim()) {
     return (
       <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
-        <Link href={businessId ? `/business/${businessId}` : "/explore"} className="text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green">
+        <Link href={backHref} className="text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green">
           Back to shop
         </Link>
         <h1 className="mt-6 font-serif text-4xl">This listing is no longer available.</h1>
@@ -112,6 +145,8 @@ export default function OfferingDetail({ kind, index }: { kind: "product" | "ser
     );
   }
 
+  const imageUrl = product?.imageUrl ?? service?.imageUrl ?? "";
+  const images = imageUrl ? [imageUrl] : [];
   const type = product?.productType ?? service?.serviceType ?? "";
   const description = product?.productDescription ?? service?.serviceDescription ?? "";
   const price = product?.productPrice ?? service?.servicePrice ?? 0;

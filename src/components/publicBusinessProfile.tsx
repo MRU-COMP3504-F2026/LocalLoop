@@ -3,30 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCreatedShop } from "@/hooks/useCreatedShop";
-import { getBusiness, listProducts, readHours, readImageUrls, readShowEmail, type BusinessRecord, type SavedProduct } from "@/lib/database";
-import { useFileUrls } from "@/hooks/useFileUrls";
+import { getBusiness, listProducts, listServices, readHours, readImageUrls, readShowEmail, type BusinessRecord} from "@/lib/database";
 import type { BusinessHours } from "@/context/accounts/businessContext";
 import { previewWords } from "@/lib/offering";
-import { useProduct } from "@/context/productContext";
-import { useService } from "@/context/serviceContext";
+import type { ProductData } from "@/context/productContext";
+import type { ServiceData } from "@/context/serviceContext";
+import { DAYS, formatTime } from "@/lib/hours";
 
-const DAYS: { key: keyof BusinessHours; label: string }[] = [
-  { key: "monday", label: "Monday" },
-  { key: "tuesday", label: "Tuesday" },
-  { key: "wednesday", label: "Wednesday" },
-  { key: "thursday", label: "Thursday" },
-  { key: "friday", label: "Friday" },
-  { key: "saturday", label: "Saturday" },
-  { key: "sunday", label: "Sunday" },
-];
-
-function formatTime(time: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-  const period = hours >= 12 ? "PM" : "AM";
-  const hour = hours % 12 || 12;
-  return `${hour}:${String(minutes).padStart(2, "0")} ${period}`;
-}
 
 function GalleryCarousel({ images, name }: { images: string[]; name: string }) {
   const [index, setIndex] = useState(0);
@@ -103,101 +86,108 @@ function formatMoney(price: number) {
 export default function PublicBusinessProfile() {
   const params = useParams<{ id: string }>();
   const routeId = typeof params?.id === "string" ? params.id : "";
-  const shop = useCreatedShop();
-  const { products } = useProduct();
-  const { services } = useService();
   const [record, setRecord] = useState<BusinessRecord | null>(null);
-  const [dbProducts, setDbProducts] = useState<SavedProduct[]>([]);
-  const productUrls = useFileUrls(products);
-  const serviceUrls = useFileUrls(services);
+  const [dbProducts, setDbProducts] = useState<ProductData[]>([]);
+  const [dbServices, setDbServices] = useState<ServiceData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!routeId || routeId === "demo" || routeId === "local") return;
+    if (!routeId) {
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
-    getBusiness(routeId)
-      .then((row) => {
-        if (!cancelled) setRecord(row);
+    setLoading(true);
+    setError(null);
+    setRecord(null);
+    setDbProducts([]);
+    setDbServices([]);
+
+    Promise.all([getBusiness(routeId), listProducts(routeId), listServices(routeId)])
+      .then(([business, products, services]) => {
+        if (cancelled) return;
+        setRecord(business);
+        setDbProducts(products);
+        setDbServices(services);
       })
-      .catch(() => undefined);
-    listProducts(routeId)
-      .then((rows) => {
-        if (!cancelled) setDbProducts(rows);
+      .catch((loadError: Error) => {
+        console.error(loadError);
+        if (!cancelled) setError("Couldn't load this business.");
       })
-      .catch(() => undefined);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
     return () => {
       cancelled = true;
     };
   }, [routeId]);
 
-  const listedProducts = dbProducts.length > 0 ? dbProducts : products;
   const offerings = [
-    ...listedProducts.flatMap((product, index) =>
-      product.productName.trim()
-        ? [
-            {
-              kind: "Product" as const,
-              name: product.productName,
-              price: product.productPrice,
-              // first 10 words, rest is on the product page
-              description: previewWords(product.productDescription),
-              imageUrl: dbProducts.length > 0 ? product.imageUrl || "" : productUrls[index]?.[0] || product.imageUrl || "",
-              details: product.details,
-              href: `/business/${routeId || "demo"}/product/${index}`,
-            },
-          ]
-        : [],
-    ),
-    ...services.flatMap((service, index) =>
-      service.serviceName.trim()
-        ? [
-            {
-              kind: "Service" as const,
-              name: service.serviceName,
-              price: service.servicePrice,
-              description: service.serviceDescription,
-              imageUrl: serviceUrls[index]?.[0] || service.imageUrl || "",
-              details: service.details,
-              href: `/business/${routeId || "demo"}/service/${index}`,
-            },
-          ]
-        : [],
-    ),
-  ];
+  ...dbProducts
+    .filter((p) => p.productName.trim())
+    .map((p) => ({
+      id: p.productId ?? p.productName,
+      kind: "Product" as const,
+      name: p.productName,
+      price: p.productPrice,
+      description: previewWords(p.productDescription),
+      imageUrl: p.imageUrl ?? "",
+      details: p.details,
+      href: `/business/${routeId}/product/${p.productId}`,
+    })),
+  ...dbServices
+    .filter((s) => s.serviceName.trim())
+    .map((s) => ({
+      id: s.serviceId ?? s.serviceName,
+      kind: "Service" as const,
+      name: s.serviceName,
+      price: s.servicePrice,
+      description: s.serviceDescription,
+      imageUrl: s.imageUrl ?? "",
+      details: s.details,
+      href: `/business/${routeId}/service/${s.serviceId}`,
+    })),
+];
 
   const view = record
-    ? {
-        name: record.name,
-        location: record.location ?? record.address ?? "",
-        description: record.description ?? "",
-        email: record.email ?? "",
-        categories: record.category?.split(" · ").filter(Boolean) ?? [],
-        onlineStore: record.online_store || shop?.onlineStore || "",
-        hours: readHours(record.opening_hours) ?? shop?.hours,
-        images: readImageUrls(record.opening_hours).length
-          ? readImageUrls(record.opening_hours)
-          : shop?.images ?? [],
-        showEmail: readShowEmail(record.opening_hours),
-      }
-    : shop
-      ? {
-          name: shop.name,
-          location: shop.location,
-          description: shop.description,
-          email: shop.email,
-          categories: shop.categories ?? [],
-          onlineStore: shop.onlineStore,
-          hours: shop.hours,
-          images: shop.images ?? [],
-          showEmail: false,
-        }
-      : null;
+  ? {
+      name: record.name,
+      location: record.location ?? record.address ?? "",
+      description: record.description ?? "",
+      email: record.email ?? "",
+      categories: record.category?.split(" · ").filter(Boolean) ?? [],
+      onlineStore: record.online_store ?? "",
+      hours: readHours(record.opening_hours),
+      images: readImageUrls(record.opening_hours),
+      showEmail: readShowEmail(record.opening_hours),
+    }
+  : null;
+
+
+
+  if (loading) {
+  return (
+    <main className="mx-auto w-full max-w-6xl px-5 pt-8 pb-10 md:px-8 lg:px-10">
+      <p className="text-loop-green">Loading...</p>
+    </main>
+  );
+  }
+
+  if (error) {
+    return (
+      <main className="mx-auto w-full max-w-6xl px-5 pt-8 pb-10 md:px-8 lg:px-10">
+        <p className="text-sm text-red-700">{error}</p>
+      </main>
+    );
+  }
 
   if (!view) {
     return (
-      <main className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
-        <h1 className="font-serif text-[2.4rem] leading-tight md:text-5xl">Shop</h1>
+      <main className="mx-auto w-full max-w-6xl px-5 pt-8 pb-10 md:px-8 lg:px-10">
+        <h1 className="font-serif text-[2.4rem] leading-tight md:text-5xl">Business not found</h1>
       </main>
     );
   }
@@ -310,7 +300,7 @@ export default function PublicBusinessProfile() {
             <h2 className="font-serif text-xl md:text-2xl">Visit</h2>
             <a
               href={view.onlineStore}
-              className="mt-3 block text-sm font-semibold underline transition-colors duration-200 hover:text-loop-green"
+              className="mt-3 block text-sm font-semibold underline break-all transition-colors duration-200 hover:text-loop-green"
             >
               {view.onlineStore.replace(/^https?:\/\//, "")}
             </a>

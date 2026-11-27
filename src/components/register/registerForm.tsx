@@ -74,7 +74,7 @@ const RegisterForm = () => {
         <div className="mx-auto flex w-full max-w-6xl flex-col px-5 pt-8 pb-10 text-loop-green-dark md:px-8 lg:px-10">
             <header>
                 <p className="text-sm uppercase tracking-[0.2em] text-loop-green">your shop</p>
-                <h1 className="mt-3 font-serif text-[2.4rem] leading-tight md:text-5xl lg:text-6xl">put your roots on the map</h1>
+                <h1 className="mt-3 font-serif text-[2.4rem] leading-tight md:text-5xl lg:text-6xl">Put Your Roots on the Map</h1>
                 <p className="mt-3 max-w-md text-loop-green md:text-lg">
                     A little about your business page goes a long way. Help your neighbours find you.
                 </p>
