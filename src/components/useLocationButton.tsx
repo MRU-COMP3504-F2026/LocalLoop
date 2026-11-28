@@ -1,35 +1,17 @@
-// src/components/home/UseLocationButton.tsx
 "use client";
 
-import { useState, useTransition } from "react";
-import { saveLocation } from "@/lib/location";
+import { useRouter } from "next/navigation";
+import { useUserLocation } from "@/context/userLocationContext";
 
 export default function UseLocationButton() {
-  const [locating, setLocating] = useState(false); // waiting on the browser popup
-  const [isPending, startTransition] = useTransition(); // Server Action running
+  const router = useRouter();
+const { useDeviceLocation, status } = useUserLocation();
 
-  const loading = locating || isPending;
-
-  function save(lat: number | null, lng: number | null) {
-    setLocating(false); // popup is done, so reset this flag
-    startTransition(async () => {
-      await saveLocation(lat, lng); // redirects to /explore when finished
-    });
-  }
+  const loading = status === "requesting";
 
   function handleClick() {
-    if (!("geolocation" in navigator)) {
-      save(null, null);
-      return;
-    }
-
-    setLocating(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => save(pos.coords.latitude, pos.coords.longitude),
-      () => save(null, null),
-      { timeout: 10000 }
-    );
+    useDeviceLocation();
+    router.push("/explore");
   }
 
   return (

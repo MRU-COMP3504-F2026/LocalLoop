@@ -44,6 +44,5 @@ export function writeStoredUserLocation(location: UserLocation) {
   try {
     window.localStorage.setItem(USER_LOCATION_STORAGE_KEY, JSON.stringify(location));
   } catch {
-    // private browsing throws, location still works for this visit
   }
 }

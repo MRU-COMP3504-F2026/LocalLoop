@@ -40,13 +40,6 @@ const primaryButtonClass =
 const secondaryButtonClass =
   "inline-flex w-full items-center justify-center rounded-full border border-loop-border bg-white px-5 py-3.5 text-center text-sm font-semibold text-loop-green-dark transition-colors duration-200 hover:bg-loop-sage sm:w-auto sm:px-8";
 
-function compactTime(time: string) {
-  const [hours, minutes] = time.split(":").map(Number);
-  const hour = hours % 12 || 12;
-  return minutes ? `${hour}:${String(minutes).padStart(2, "0")}` : String(hour);
-}
-
-
 
 function pinLabel(location: string) {
   const parts = location.split(",").map((part) => part.trim()).filter(Boolean);
