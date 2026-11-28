@@ -116,7 +116,7 @@ const RegisterForm = () => {
                 </Button>
                 <p className="mt-4 text-sm text-loop-green">
                     Already have an account?{" "}
-                    <Link href="/login" className="font-semibold text-loop-green-dark underline">
+                    <Link href="/login/business" className="font-semibold text-loop-green-dark underline">
                         Sign in
                     </Link>
                 </p>

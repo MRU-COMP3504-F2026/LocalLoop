@@ -1,5 +1,4 @@
 import Link from "next/link";
-import UseLocationButton from "@/components/useLocationButton";
 
 export default function Home() {
   return (
@@ -19,22 +18,20 @@ export default function Home() {
           Meet the makers, little shops and local moments that make your neighborhood yours.
         </p>
 
-        <UseLocationButton />
-
-        <Link href="/explore" className="mt-5 text-sm font-semibold hover:text-loop-green">
-          Choose a neighborhood instead
-        </Link>
-
-        <p className="mt-6 max-w-xs text-xs leading-relaxed text-loop-green">
-          Your location helps us find nearby gems. It&apos;s never shared with businesses.
-        </p>
-
-        <p className="mt-10 text-sm">
-          Own a local business?{" "}
-          <Link href="/register" className="font-semibold hover:text-loop-green">
-            Join the loop →
+        <div className="mt-10 flex w-full flex-col gap-3">
+          <Link
+            href="/login"
+            className="flex h-12 w-full items-center justify-center rounded-full border border-loop-border bg-white px-5 text-sm font-semibold text-loop-green-dark hover:bg-loop-sage"
+          >
+            Sign in
           </Link>
-        </p>
+          <Link
+            href="/register"
+            className="flex h-12 w-full items-center justify-center rounded-full bg-loop-green-dark px-5 text-sm font-semibold text-white hover:bg-loop-green"
+          >
+            Create an account
+          </Link>
+        </div>
       </div>
     </main>
   );

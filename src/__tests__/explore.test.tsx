@@ -1,12 +1,15 @@
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react' 
 import  ExplorePage  from '../app/(site)/explore/page';
-import { useAccount } from "@/context/accounts/accountContext";
-import { useBusiness } from "@/context/accounts/businessContext";
+import { UserLocationProvider } from "@/context/userLocationContext";
 
 describe ('ExplorePage component', () => {
   it('should render the ExplorePage component correctly', () => {
-    render(<ExplorePage />);
+    render(
+      <UserLocationProvider>
+        <ExplorePage />
+      </UserLocationProvider>,
+    );
 
     expect(screen.getByRole('heading', { name: 'explore' })).toBeInTheDocument();
     expect(screen.getByText('Local businesses around you.')).toBeInTheDocument();
