@@ -39,7 +39,7 @@ beforeEach(() => {
 });
 
 describe('ExplorePage component', () => {
-  it('should render the ExplorePage component correctly', () => {
+  it('should render the ExplorePage component correctly', async () => {
     render(
       <UserLocationProvider>
         <ExplorePage />
@@ -48,13 +48,14 @@ describe('ExplorePage component', () => {
 
     expect(screen.getByRole('heading', { name: 'explore' })).toBeInTheDocument();
     expect(screen.getByText('Local businesses around you.')).toBeInTheDocument();
+
+    expect(await screen.findByText('No businesses saved yet.')).toBeInTheDocument();
   });
 });
 
-
-describe('BusinessCard component', () => { 
+describe('BusinessCard component', () => {
   it('renders a business card with the correct information', () => {
-  render(
+    render(
       <BusinessCard
         id="b-1"
         name="River Market Bakery"
@@ -64,12 +65,12 @@ describe('BusinessCard component', () => {
         description="Sourdough and coffee"
       />
     );
-  
-    expect(screen.getByRole('heading', { name: "River Market Bakery" })).toBeInTheDocument();
+
+    expect(screen.getByRole('heading', { name: 'River Market Bakery' })).toBeInTheDocument();
     expect(screen.getByText('Bakery')).toBeInTheDocument();
     expect(screen.getByText('Sourdough and coffee')).toBeInTheDocument();
     expect(screen.getByText('Calgary, AB')).toBeInTheDocument();
-    expect(screen.getByAltText("River Market Bakery logo")).toBeInTheDocument();
+    expect(screen.getByAltText('River Market Bakery logo')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View Business Profile' })).toHaveAttribute(
       'href',
       '/business/b-1'
@@ -77,21 +78,102 @@ describe('BusinessCard component', () => {
   });
 });
 
-describe('ExplorePage with UserLocationProvider', () => { 
+describe('ExplorePage with UserLocationProvider', () => {
   it('renders businesses returned by the data layer', async () => {
     mockedListBusinesses.mockResolvedValue([SAMPLE_BUSINESS]);
+
     render(
       <UserLocationProvider>
         <ExplorePage />
       </UserLocationProvider>
     );
 
-    expect(await screen.findByRole('heading', { name: "River Market Bakery" })).toBeInTheDocument();
-  
-
+    expect(await screen.findByRole('heading', { name: 'River Market Bakery' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View Business Profile' })).toHaveAttribute(
       'href',
       '/business/b-1'
     );
+  });
+
+  it('renders one card per business', async () => {
+    mockedListBusinesses.mockResolvedValue([
+      SAMPLE_BUSINESS,
+      { ...SAMPLE_BUSINESS, business_id: 'b-2', name: 'Cara Cleaners', category: 'Laundry' },
+    ]);
+
+    render(
+      <UserLocationProvider>
+        <ExplorePage />
+      </UserLocationProvider>
+    );
+
+    const links = await screen.findAllByRole('link', { name: 'View Business Profile' });
+    expect(links).toHaveLength(2);
+    expect(links[0]).toHaveAttribute('href', '/business/b-1');
+    expect(links[1]).toHaveAttribute('href', '/business/b-2');
+    expect(screen.getByRole('heading', { name: 'Cara Cleaners' })).toBeInTheDocument();
+  });
+
+  it('uses the record image when present and the default image otherwise', async () => {
+    mockedListBusinesses.mockResolvedValue([
+      { ...SAMPLE_BUSINESS, opening_hours: { image_urls: ['/images/shopfront.jpg'] } },
+      { ...SAMPLE_BUSINESS, business_id: 'b-2', name: 'Cara Cleaners', category: 'Laundry' },
+    ]);
+
+    render(
+      <UserLocationProvider>
+        <ExplorePage />
+      </UserLocationProvider>
+    );
+
+    expect(await screen.findByAltText('River Market Bakery logo')).toHaveAttribute(
+      'src',
+      expect.stringContaining('shopfront.jpg')
+    );
+    expect(screen.getByAltText('Cara Cleaners logo')).toHaveAttribute(
+      'src',
+      expect.stringContaining('business-1.jpg')
+    );
+  });
+
+  it('falls back to the address and hides the pill when fields are missing', async () => {
+    mockedListBusinesses.mockResolvedValue([{ ...SAMPLE_BUSINESS, location: null, category: null }]);
+
+    render(
+      <UserLocationProvider>
+        <ExplorePage />
+      </UserLocationProvider>
+    );
+
+    expect(await screen.findByRole('heading', { name: 'River Market Bakery' })).toBeInTheDocument();
+    expect(screen.getByText('123 Main Street')).toBeInTheDocument();
+    expect(screen.queryByText('Calgary, AB')).not.toBeInTheDocument();
+    expect(screen.queryByText('Bakery')).not.toBeInTheDocument();
+  });
+
+  it('shows the load error when the data layer rejects', async () => {
+    mockedListBusinesses.mockRejectedValue(new Error('Could not load businesses.'));
+
+    render(
+      <UserLocationProvider>
+        <ExplorePage />
+      </UserLocationProvider>
+    );
+
+    expect(await screen.findByText('Could not load businesses.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your location' })).toBeInTheDocument();
+  });
+
+  it('shows the loading state until the data layer answers', () => {
+    mockedListBusinesses.mockImplementation(() => new Promise<BusinessRecord[]>(() => {}));
+
+    render(
+      <UserLocationProvider>
+        <ExplorePage />
+      </UserLocationProvider>
+    );
+
+    expect(screen.getByText('Loading businesses...')).toBeInTheDocument();
+    expect(screen.queryByText('No businesses saved yet.')).not.toBeInTheDocument();
   });
 });
