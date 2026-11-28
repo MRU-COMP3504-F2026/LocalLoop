@@ -103,9 +103,13 @@ export default function SiteNav() {
   }, []);
 
   if (pathname === "/login") {
+    return null;
+  }
+
+  if (pathname === "/login/business" || pathname === "/login/customer") {
     return (
       <header className="border-b border-loop-border bg-loop-cream">
-        <div className="mx-auto flex w-full max-w-6xl px-5 py-4 md:px-8">
+        <div className="mx-auto flex w-full max-w-6xl justify-center px-5 py-4">
           <SiteLogo />
         </div>
       </header>
