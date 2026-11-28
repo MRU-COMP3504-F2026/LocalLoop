@@ -6,6 +6,14 @@ import { BusinessHours, useBusiness } from "@/context/accounts/businessContext";
 
 jest.mock("@/context/accounts/accountContext");   
 jest.mock("@/context/accounts/businessContext");
+jest.mock("@/lib/database", () => ({
+  loadSessionBusiness: jest.fn().mockResolvedValue(null),
+  readBusinessId: jest.fn(() => "biz-1"),
+  readHours: jest.fn(),
+  readImageUrls: jest.fn(() => []),
+  updateBusiness: jest.fn().mockResolvedValue(undefined),
+  uploadPhotos: jest.fn().mockResolvedValue([]),
+}));
 
 const setAccountData = jest.fn();   
 const setBusinessData = jest.fn();
@@ -40,21 +48,27 @@ beforeEach(() => {
   (useBusiness as jest.Mock).mockReturnValue({ businessData: SAMPLE_BUSINESS, setBusinessData });
 });
 
+async function renderProfile() {
+  const view = render(<ProfilePage />);
+  await screen.findByLabelText(/business name/i);
+  return view;
+}
+
 beforeAll(() => {                   
   Object.defineProperty(URL, "createObjectURL", { value: jest.fn((file: File) => `blob:${file.name}`) });
   Object.defineProperty(URL, "revokeObjectURL", { value: jest.fn() });
 });
 
-test("renders the profile prefilled from account and business data", () => {
-  render(<ProfilePage />);   
+test("renders the profile prefilled from account and business data", async () => {
+  await renderProfile();   
   
   expect(screen.getByLabelText(/business name/i)).toHaveValue("River Market Bakery"); 
   expect(screen.getByRole("button", { name: "Save profile changes" })).toBeInTheDocument();
 });
 
 // Save profile tests
-test("clicking save button calls setAccountData and setBusinessData with updated values", () => {
-  render(<ProfilePage />);
+test("clicking save button calls setAccountData and setBusinessData with updated values", async () => {
+  await renderProfile();
 
   // Edit a field
   const nameInput = screen.getByLabelText(/business name/i);
@@ -62,6 +76,7 @@ test("clicking save button calls setAccountData and setBusinessData with updated
 
   // Click save
   fireEvent.click(screen.getByRole("button", { name: "Save profile changes" }));
+  expect(await screen.findByRole("button", { name: "Saved" })).toBeInTheDocument();
 
   // Assert: both setters called exactly once, each with an updater function
   expect(setAccountData).toHaveBeenCalledTimes(1);
@@ -69,21 +84,18 @@ test("clicking save button calls setAccountData and setBusinessData with updated
   expect(setAccountData).toHaveBeenCalledWith(expect.any(Function));
   expect(setBusinessData).toHaveBeenCalledWith(expect.any(Function));
 
-  // The updater gotcha: the argument is a FUNCTION — apply it to the current data
+  // the argument is a function, so run it against the current data
   const applyAccountUpdate = setAccountData.mock.calls[0][0];
   expect(applyAccountUpdate(SAMPLE_ACCOUNT).username).toBe("River Market Bakery II");
   expect(applyAccountUpdate(SAMPLE_ACCOUNT).email).toBe("hello@rivermarket.example");
 
   const applyBusinessUpdate = setBusinessData.mock.calls[0][0];
-  expect(applyBusinessUpdate(SAMPLE_BUSINESS)).toEqual(SAMPLE_BUSINESS);
-
-  // UI feedback: the button now reads "Saved"
-  expect(screen.getByRole("button", { name: "Saved" })).toBeInTheDocument();
+  expect(applyBusinessUpdate(SAMPLE_BUSINESS)).toEqual({ ...SAMPLE_BUSINESS, images: [] });
 });
 
 // Add and remove categories tests
-test("choosing a category from the picker adds its chip and closes the picker", () => {
-  render(<ProfilePage />);
+test("choosing a category from the picker adds its chip and closes the picker", async () => {
+  await renderProfile();
 
   // Open the picker
   fireEvent.click(screen.getByRole("button", { name: "+" }));
@@ -99,8 +111,8 @@ test("choosing a category from the picker adds its chip and closes the picker", 
   expect(screen.queryByRole("button", { name: "+" })).not.toBeInTheDocument();
 });
 
-test("clicking a category chip removes that category", () => {
-  render(<ProfilePage />);
+test("clicking a category chip removes that category", async () => {
+  await renderProfile();
 
   fireEvent.click(screen.getByRole("button", { name: /Remove Bakery/i }));
 
@@ -109,8 +121,8 @@ test("clicking a category chip removes that category", () => {
   expect(screen.getByRole("button", { name: "+" })).toBeInTheDocument();           // 2 < 3 again
 });
 
-test("clicking + opens the picker with the remaining options", () => {
-  render(<ProfilePage />);
+test("clicking + opens the picker with the remaining options", async () => {
+  await renderProfile();
   
   fireEvent.click(screen.getByRole("button", { name: "+" }));
   expect(screen.getByRole("button", { name: "Ceramics" })).toBeInTheDocument();
@@ -118,8 +130,8 @@ test("clicking + opens the picker with the remaining options", () => {
 });
 
 // Profile hours tests
-test("the hours toggle shows the summary and opens all seven days", () => {
-  render(<ProfilePage />);
+test("the hours toggle shows the summary and opens all seven days", async () => {
+  await renderProfile();
 
   const toggle = screen.getByRole("button", { name: /Mon–Sun 9–5/ });
   expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -133,8 +145,8 @@ test("the hours toggle shows the summary and opens all seven days", () => {
   expect(screen.getAllByDisplayValue("17:00")).toHaveLength(7); // close time per day
 });
 
-test("marking a day closed hides its time inputs and updates the summary", () => {
-  render(<ProfilePage />);
+test("marking a day closed hides its time inputs and updates the summary", async () => {
+  await renderProfile();
 
   fireEvent.click(screen.getByRole("button", { name: /Mon–Sun 9–5/ }));
 
@@ -146,8 +158,8 @@ test("marking a day closed hides its time inputs and updates the summary", () =>
   expect(screen.getByRole("button", { name: /Tue–Sun 9–5 · Mon closed/ })).toBeInTheDocument();
 });
 
-test("editing a time updates the summary", () => {
-  render(<ProfilePage />);
+test("editing a time updates the summary", async () => {
+  await renderProfile();
 
   fireEvent.click(screen.getByRole("button", { name: /Mon–Sun 9–5/ }));
   fireEvent.change(screen.getAllByDisplayValue("09:00")[0], { target: { value: "08:00" } });
@@ -161,7 +173,7 @@ test("uploading photos renders previews and marks the first as cover", async () 
   const user = userEvent.setup();
   const bread = new File(["fake-image-data"], "bread.png", { type: "image/png" });
   const croissant = new File(["fake-image-data"], "croissant.jpg", { type: "image/jpeg" });
-  const { container } = render(<ProfilePage />);
+  const { container } = await renderProfile();
   const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
   expect(screen.getByText(/No photos added/)).toBeInTheDocument(); // empty state first
@@ -183,7 +195,7 @@ test("removing a photo renumbers the rest and revokes its preview URL", async ()
   const user = userEvent.setup();
   const bread = new File(["fake-image-data"], "bread.png", { type: "image/png" });
   const croissant = new File(["fake-image-data"], "croissant.jpg", { type: "image/jpeg" });
-  const { container } = render(<ProfilePage />);
+  const { container } = await renderProfile();
   const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
   await user.upload(input, [bread, croissant]);
